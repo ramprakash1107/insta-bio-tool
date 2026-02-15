@@ -3,100 +3,131 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Instagram Bio Generator</title>
+<title>AI Instagram Bio Generator</title>
+
 <style>
 body{
-font-family: Arial;
-background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-color:#fff;
-text-align:center;
-padding:20px;
+margin:0;
+font-family:system-ui,Arial;
+background:linear-gradient(135deg,#fdfbfb,#ebedee);
 }
-.box{
-max-width:420px;
+.container{
+max-width:480px;
 margin:auto;
-background:rgba(0,0,0,0.4);
 padding:20px;
-border-radius:15px;
 }
-select,button{
+h1{
+text-align:center;
+font-size:26px;
+}
+p{
+text-align:center;
+color:#555;
+}
+label{
+font-weight:600;
+margin-top:15px;
+display:block;
+}
+input,select,button,textarea{
 width:100%;
 padding:12px;
-margin:10px 0;
+margin-top:8px;
 border-radius:10px;
-border:none;
+border:1px solid #ccc;
 font-size:16px;
 }
 button{
-background:#ff9800;
-color:#000;
+background:#007bff;
+color:white;
+border:none;
+margin-top:18px;
 font-weight:bold;
 }
-#result{
-margin-top:15px;
-font-size:18px;
-min-height:60px;
+textarea{
+min-height:90px;
+resize:none;
 }
 .copy{
-background:#4caf50;
+background:#28a745;
+margin-top:10px;
+}
+.footer{
+text-align:center;
+margin-top:25px;
+font-size:13px;
+color:#777;
 }
 </style>
 </head>
+
 <body>
+<div class="container">
 
-<div class="box">
-<h2>Instagram Bio Generator</h2>
+<h1>Instagram Bio Generator</h1>
+<p>Create a professional, eye-catching bio in seconds</p>
 
-<select id="type">
-<option value="attitude">🔥 Attitude</option>
-<option value="love">❤️ Love</option>
-<option value="sad">🥀 Sad</option>
-<option value="pro">💼 Professional</option>
+<label>Describe yourself</label>
+<input id="desc" placeholder="Name, profession, passion, hobby">
+
+<label>Tone of voice</label>
+<select id="tone">
+<option value="casual">Casual 😊</option>
+<option value="professional">Professional 💼</option>
+<option value="attitude">Attitude 😎</option>
+<option value="creative">Creative ✨</option>
 </select>
 
-<button onclick="generate()">Generate Bio</button>
+<button onclick="generate()">Generate Instagram Bio</button>
 
-<div id="result"></div>
+<label>Your generated bio</label>
+<textarea id="output" placeholder="Your AI bio will appear here..."></textarea>
 
 <button class="copy" onclick="copyBio()">Copy Bio</button>
+
+<div class="footer">
+Built with ❤️ on mobile
+</div>
+
 </div>
 
 <script>
-const bios={
-attitude:[
-"Born to express, not to impress 😎",
-"Silent but deadly 🔥",
-"Attitude on point 💯"
-],
-love:[
-"Spreading love ❤️",
-"Heart full of dreams 💫",
-"Love is my language 💕"
-],
-sad:[
-"Smiles hide stories 🥀",
-"Broken but breathing 💔",
-"Silence hurts the most 🌙"
-],
-pro:[
-"Digital creator 💼",
-"Focused on growth 📈",
-"Building my future 🚀"
-]
-};
-
 function generate(){
-const t=document.getElementById("type").value;
-const arr=bios[t];
-document.getElementById("result").innerText=
-arr[Math.floor(Math.random()*arr.length)];
+const d=document.getElementById("desc").value;
+const t=document.getElementById("tone").value;
+
+if(d.trim()===""){
+alert("Please describe yourself");
+return;
+}
+
+let bio="";
+
+if(t==="casual"){
+bio=`Just a ${d} ✨
+Living life one moment at a time 🌍`;
+}
+if(t==="professional"){
+bio=`${d}
+Focused • Driven • Growing 📈`;
+}
+if(t==="attitude"){
+bio=`${d} 😎
+I don’t chase, I attract 🔥`;
+}
+if(t==="creative"){
+bio=`${d} ✨
+Turning thoughts into reality 🎨🌙`;
+}
+
+document.getElementById("output").value=bio;
 }
 
 function copyBio(){
-navigator.clipboard.writeText(
-document.getElementById("result").innerText
-);
-alert("Bio Copied!");
+const o=document.getElementById("output");
+o.select();
+document.execCommand("copy");
+alert("Bio copied!");
 }
 </script>
 
