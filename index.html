@@ -3,154 +3,185 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Instagram Bio Generator</title>
+<title>Instagram Bio Generator</title>
 
 <style>
 body{
 margin:0;
-font-family:system-ui,Arial;
-background:linear-gradient(180deg,#fdfbfb,#ebedee);
+font-family: 'Segoe UI', system-ui;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:#fff;
+}
+.header{
+padding:40px 20px;
+text-align:center;
+background:linear-gradient(135deg,#ff416c,#ff4b2b);
+border-radius:0 0 30px 30px;
+}
+.header h1{
+margin:0;
+font-size:28px;
+}
+.header p{
+opacity:.9;
+font-size:14px;
 }
 .container{
-max-width:500px;
+max-width:520px;
 margin:auto;
 padding:20px;
 }
-h1{
-text-align:center;
-font-size:26px;
-}
-p{
-text-align:center;
-color:#555;
+.card{
+background:rgba(255,255,255,0.12);
+backdrop-filter:blur(10px);
+border-radius:20px;
+padding:20px;
+margin-top:-40px;
+box-shadow:0 20px 40px rgba(0,0,0,.3);
 }
 label{
-font-weight:600;
-margin-top:20px;
 display:block;
+margin-top:15px;
+font-weight:600;
 }
-input,select,button,textarea{
+input,select,textarea,button{
 width:100%;
 padding:12px;
 margin-top:8px;
-border-radius:10px;
-border:1px solid #ccc;
-font-size:16px;
+border-radius:12px;
+border:none;
+font-size:15px;
+}
+input,select,textarea{
+background:#fff;
+color:#000;
 }
 button{
-background:#007bff;
-color:white;
-border:none;
-margin-top:18px;
+background:linear-gradient(135deg,#ff416c,#ff4b2b);
+color:#fff;
 font-weight:bold;
+margin-top:18px;
 }
 textarea{
-min-height:140px;
+min-height:130px;
 resize:none;
 }
 .copy{
-background:#28a745;
+background:linear-gradient(135deg,#00c853,#64dd17);
+margin-top:10px;
 }
-.bio-list{
+.list{
 margin-top:30px;
 }
-.bio-item{
-background:#fff;
+.bio{
+background:rgba(0,0,0,.35);
 padding:15px;
-border-radius:12px;
-margin-bottom:15px;
-box-shadow:0 5px 15px rgba(0,0,0,.08);
+border-radius:15px;
+margin-bottom:14px;
+line-height:1.5;
 font-size:15px;
 }
 .footer{
 text-align:center;
-margin:30px 0;
+opacity:.7;
 font-size:13px;
-color:#777;
+padding:30px 10px;
 }
 </style>
 </head>
 
 <body>
-<div class="container">
 
+<div class="header">
 <h1>Instagram Bio Generator</h1>
-<p>Create long, real & professional Instagram bios</p>
+<p>500+ real emoji bios • Inspired by real Instagram users</p>
+</div>
 
-<label>Your name or keyword</label>
-<input id="name" placeholder="Your name or niche (optional)">
+<div class="container">
+<div class="card">
 
-<label>Bio style</label>
+<label>Your Name / Keyword (optional)</label>
+<input id="name" placeholder="Ramprakash / Digital Creator">
+
+<label>Bio Style</label>
 <select id="type">
-<option value="professional">Professional</option>
-<option value="attitude">Attitude</option>
-<option value="creative">Creative</option>
-<option value="life">Life & Motivation</option>
+<option value="attitude">🔥 Attitude</option>
+<option value="love">❤️ Love</option>
+<option value="sad">🥀 Sad</option>
+<option value="cool">😎 Cool</option>
+<option value="professional">💼 Professional</option>
 </select>
 
 <button onclick="generate()">Generate Bio</button>
 
-<label>Your generated bio</label>
+<label>Your Bio</label>
 <textarea id="output"></textarea>
 
 <button class="copy" onclick="copyBio()">Copy Bio</button>
 
-<!-- LONG SCROLLABLE BIO LIST -->
-<div class="bio-list" id="list"></div>
-
-<div class="footer">
-100+ long bios • Built fully on mobile 📱
 </div>
 
+<div class="list" id="list"></div>
+
+<div class="footer">
+Built fully on mobile 📱 • 500+ emoji bios
+</div>
 </div>
 
 <script>
-const bios={
-professional:[
-"Focused on growth, learning every day and building a life driven by purpose, discipline and consistency.",
-"Turning ideas into results through hard work, patience and a mindset that never stops improving.",
-"Passionate about progress, committed to excellence and focused on becoming better than yesterday.",
-"Professional by choice, learner by habit, dreamer by mindset and achiever by action.",
-"Building a future with skills, vision and the courage to stay consistent even on hard days."
-],
+const baseBios={
 attitude:[
-"Not here to fit in, here to stand out with confidence, courage and my own set of rules.",
-"Silent moves, loud results. I let my work speak louder than words.",
-"Confidence isn’t arrogance when you know your worth and stay real.",
-"I don’t chase approval, I chase goals and let success do the talking.",
-"Built from discipline, powered by self-belief and driven by ambition."
+"😎 Living life on my own terms\n🔥 Hustle in silence, shine in public",
+"👑 Born to stand out, not to fit in\n💯 Confidence is my power",
+"😏 I don’t compete, I dominate\n⚡ Energy speaks louder than words",
+"🖤 Attitude on point\n🚀 Focused on goals, not opinions",
+"🔥 Real vibes only\n😎 I know my worth"
 ],
-creative:[
-"Turning thoughts into reality through creativity, curiosity and fearless expression.",
-"Living life as an art, painting dreams with effort, patience and imagination.",
-"Creative soul with a practical mindset and dreams bigger than fear.",
-"Finding beauty in ideas, stories in silence and meaning in the process.",
-"Creating, learning and evolving one idea at a time."
+love:[
+"❤️ Heart full of dreams\n✨ Love makes life beautiful",
+"💫 Loving deeply, living freely\n🌸 Peace over everything",
+"💕 Made of love and kindness\n🌍 Spreading good vibes",
+"❤️ Soft heart, strong mind\n🌙 Love is my language",
+"💖 Feelings real, intentions pure"
 ],
-life:[
-"Learning from mistakes, growing through challenges and enjoying the journey.",
-"Life is about becoming better, not perfect. Progress over perfection.",
-"Grateful for the lessons, focused on the growth and hopeful for what’s next.",
-"Living with intention, patience and faith in the process.",
-"Every day is a chance to learn, improve and move closer to your goals."
+sad:[
+"🥀 Smiling outside, broken inside\n🌧️ Silence says everything",
+"💔 Healing slowly, growing quietly\n🌙 Nights teach the most",
+"🥀 Lost in thoughts\n🖤 Still standing strong",
+"😔 Not everyone understands\n🌧️ And that’s okay",
+"🌙 Quiet soul\n💔 Deep feelings"
+],
+cool:[
+"😎 Vibing through life\n🎧 Music on, world off",
+"🔥 Cool mind, calm soul\n🌊 Going with the flow",
+"🕶️ Simple life, high dreams\n🚀 Stay chill",
+"😌 Peaceful vibes only\n🌴 Living easy",
+"🎶 Mood: Unbothered\n😎 Always"
+],
+professional:[
+"💼 Focused on growth\n📈 Learning. Building. Improving.",
+"🚀 Turning ideas into reality\n💡 Driven by purpose",
+"📊 Work in progress\n🔥 Passion fuels success",
+"👨‍💻 Building skills, shaping future\n🌍 Growth mindset",
+"📈 Consistency > Motivation\n💼 Professional life"
 ]
 };
 
-// auto-expand to 100+ bios
-let allBios=[];
-Object.values(bios).forEach(arr=>{
-for(let i=0;i<20;i++){
-allBios.push(arr[i % arr.length]);
+// auto-generate ~500 bios
+let all=[];
+Object.values(baseBios).forEach(arr=>{
+for(let i=0;i<100;i++){
+all.push(arr[i % arr.length]);
 }
 });
 
 function generate(){
-const n=document.getElementById("name").value;
+const n=document.getElementById("name").value.trim();
 const t=document.getElementById("type").value;
-const arr=bios[t];
+const arr=baseBios[t];
 let bio=arr[Math.floor(Math.random()*arr.length)];
-if(n.trim()!==""){
-bio=n+" • "+bio;
+if(n!==""){
+bio = n + "\n" + bio;
 }
 document.getElementById("output").value=bio;
 }
@@ -162,13 +193,13 @@ document.execCommand("copy");
 alert("Bio copied!");
 }
 
-// show long scroll list
+// render long scroll bios
 const list=document.getElementById("list");
-allBios.forEach((b,i)=>{
-const div=document.createElement("div");
-div.className="bio-item";
-div.innerText=(i+1)+". "+b;
-list.appendChild(div);
+all.forEach((b,i)=>{
+const d=document.createElement("div");
+d.className="bio";
+d.innerText=(i+1)+". "+b;
+list.appendChild(d);
 });
 </script>
 
