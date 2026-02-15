@@ -2,187 +2,102 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Girl I Need You Trending CapCut Template 2026 - Rajesh Editz</title>
+<title>Short Video Feed</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Girl I Need You Trending CapCut Template 2026 by Rajesh Editz. Free preview and easy use.">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
 body{
-  background:#0b0b0f;
-  color:#fff;
+  background:#000;
+  overflow-y:scroll;
+  scroll-snap-type:y mandatory;
 }
-
-/* Header */
-header{
-  padding:20px;
-  text-align:center;
-  border-bottom:1px solid #222;
-}
-header h1{
-  font-size:24px;
-  margin-bottom:8px;
-}
-header p{
-  color:#aaa;
-  font-size:14px;
-}
-
-/* Container */
-.container{
-  max-width:900px;
-  margin:auto;
-  padding:20px;
-}
-
-/* Video Preview */
-.preview{
-  background:#111;
-  border-radius:16px;
-  overflow:hidden;
-  box-shadow:0 0 25px rgba(255,0,150,0.15);
-}
-.preview video{
+.video{
+  height:100vh;
   width:100%;
-  display:block;
+  position:relative;
+  scroll-snap-align:start;
+}
+video{
+  height:100%;
+  width:100%;
+  object-fit:cover;
 }
 
-/* Button */
-.action{
-  margin:25px 0;
-  text-align:center;
-}
-.action button{
-  background:linear-gradient(135deg,#ff007a,#6a00ff);
-  border:none;
-  padding:16px 30px;
-  color:#fff;
-  font-size:18px;
-  border-radius:40px;
-  cursor:pointer;
-  box-shadow:0 10px 30px rgba(106,0,255,0.4);
-}
-.action button:hover{
-  transform:scale(1.05);
-}
-
-/* Info Box */
-.info{
-  background:#111;
-  border-radius:14px;
-  padding:18px;
-  margin-bottom:30px;
-}
-.info h3{
-  margin-bottom:10px;
-}
-.info ul{
-  list-style:none;
-}
-.info ul li{
-  padding:6px 0;
-  color:#ccc;
-  font-size:14px;
-}
-
-/* Related */
-.related h2{
-  margin-bottom:15px;
-}
-.cards{
+/* Right icons */
+.actions{
+  position:absolute;
+  right:15px;
+  bottom:120px;
   display:flex;
-  gap:15px;
-  overflow-x:auto;
+  flex-direction:column;
+  gap:18px;
+  text-align:center;
 }
-.card{
-  min-width:180px;
-  background:#111;
-  border-radius:12px;
-  padding:12px;
+.actions div{
+  color:#fff;
+  font-size:22px;
+  cursor:pointer;
 }
-.card img{
-  width:100%;
-  border-radius:8px;
-}
-.card p{
-  font-size:13px;
-  margin-top:8px;
-  color:#ccc;
+.actions span{
+  font-size:12px;
+  display:block;
+  margin-top:4px;
 }
 
-/* Footer */
-footer{
-  text-align:center;
-  padding:20px;
-  color:#777;
-  font-size:13px;
-  border-top:1px solid #222;
+/* Bottom text */
+.info{
+  position:absolute;
+  left:15px;
+  bottom:30px;
+  color:#fff;
 }
-a{color:#ff4dd2;text-decoration:none}
+.info h3{font-size:16px}
+.info p{font-size:13px;color:#ccc}
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>Girl I Need You – Trending CapCut Template 2026</h1>
-  <p>By Rajesh Editz</p>
-</header>
+<!-- VIDEO 1 -->
+<div class="video">
+  <video src="VIDEO1.mp4" autoplay muted loop></video>
 
-<div class="container">
-
-  <!-- Video Preview -->
-  <div class="preview">
-    <!-- Yahan preview video MP4 ka link baad me dal sakte ho -->
-    <video src="" poster="https://via.placeholder.com/900x500?text=Template+Preview" autoplay muted loop></video>
+  <div class="actions">
+    <div onclick="like(this)">❤️<span>12</span></div>
+    <div onclick="share()">🔗<span>Share</span></div>
   </div>
 
-  <!-- Action Button -->
-  <div class="action">
-    <button onclick="useTemplate()">USE TEMPLATE IN 0</button>
-  </div>
-
-  <!-- Info -->
   <div class="info">
-    <h3>Template Details</h3>
-    <ul>
-      <li>🎵 Song: Girl I Need You</li>
-      <li>🎬 Style: Love / Trending</li>
-      <li>📱 Best For: Reels & Shorts</li>
-      <li>📅 Updated: 2026</li>
-    </ul>
+    <h3>@rajesheditz</h3>
+    <p>Trending Reel 🔥</p>
   </div>
-
-  <!-- Related -->
-  <div class="related">
-    <h2>Related Templates</h2>
-    <div class="cards">
-      <div class="card">
-        <img src="https://via.placeholder.com/300x400?text=Template+1">
-        <p>Love Beat CapCut</p>
-      </div>
-      <div class="card">
-        <img src="https://via.placeholder.com/300x400?text=Template+2">
-        <p>Trending Reel Edit</p>
-      </div>
-      <div class="card">
-        <img src="https://via.placeholder.com/300x400?text=Template+3">
-        <p>Slow Motion Edit</p>
-      </div>
-    </div>
-  </div>
-
 </div>
 
-<footer>
-  © 2026 Rajesh Editz • Follow on <a href="#">Instagram</a>
-</footer>
+<!-- VIDEO 2 -->
+<div class="video">
+  <video src="VIDEO2.mp4" autoplay muted loop></video>
+
+  <div class="actions">
+    <div onclick="like(this)">❤️<span>8</span></div>
+    <div onclick="share()">🔗<span>Share</span></div>
+  </div>
+
+  <div class="info">
+    <h3>@editzzone</h3>
+    <p>Love Status 💕</p>
+  </div>
+</div>
 
 <script>
-function useTemplate(){
-  alert("CapCut template link baad me add kiya jayega 👍");
-  // BAAD ME YAHAN LINK DAALNA:
-  // window.location.href = "PASTE_CAPCUT_TEMPLATE_LINK_HERE";
+function like(el){
+  let span = el.querySelector("span");
+  span.innerText = parseInt(span.innerText) + 1;
+  el.style.transform="scale(1.3)";
+  setTimeout(()=>el.style.transform="scale(1)",200);
+}
+function share(){
+  alert("Share feature baad me connect hoga 👍");
 }
 </script>
 
