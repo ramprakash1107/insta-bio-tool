@@ -3,118 +3,242 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultimate Holi 1000 Features</title>
+<title>Happy Holi Wishes</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
+*{box-sizing:border-box}
 body{
-margin:0;
-font-family:Poppins,sans-serif;
-background:linear-gradient(120deg,#ff0080,#ffcc00,#00eaff);
-color:#fff;
-text-align:center;
-overflow-x:hidden;
+  margin:0;
+  font-family:'Hind',sans-serif;
+  background:linear-gradient(135deg,#ff0080,#ffcc00,#00c3ff,#7cff00);
+  background-size:400% 400%;
+  animation:bg 10s ease infinite;
+  color:#fff;
+  text-align:center;
+  min-height:100vh;
+  overflow-x:hidden;
 }
-h1{margin:15px;text-shadow:0 0 15px #000}
-.box{
-background:rgba(0,0,0,.3);
-margin:20px auto;
-padding:20px;
-border-radius:20px;
-width:90%;
-max-width:420px;
+@keyframes bg{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
 }
-input,button{
-padding:12px;
-border:none;
-border-radius:12px;
-font-size:1em;
-margin:6px;
+
+/* Color splash */
+.splash{
+  position:fixed;
+  top:-30px;
+  font-size:24px;
+  animation:fall linear infinite;
 }
+@keyframes fall{
+  to{transform:translateY(110vh) rotate(360deg);opacity:0}
+}
+
+/* Container */
+.container{
+  max-width:380px;
+  margin:80px auto 140px;
+  padding:22px;
+  background:rgba(255,255,255,0.18);
+  backdrop-filter:blur(10px);
+  border-radius:24px;
+  box-shadow:0 0 30px rgba(0,0,0,.4);
+}
+
+#fromName{
+  font-size:32px;
+  font-weight:700;
+  text-shadow:0 0 15px #fff;
+}
+
+.sub{
+  font-size:16px;
+  margin:10px 0;
+}
+
+h1{
+  font-size:30px;
+  margin:10px 0;
+  text-shadow:0 0 18px #ffe600;
+}
+
+#timer{
+  font-size:15px;
+  margin:12px 0;
+}
+
+img{
+  width:100%;
+  max-height:360px;
+  object-fit:cover;
+  border-radius:20px;
+  box-shadow:0 0 20px rgba(0,0,0,.5);
+}
+
+.msg{
+  font-size:15px;
+  margin:16px 0;
+  line-height:1.6;
+}
+
+input{
+  width:92%;
+  padding:12px;
+  border-radius:24px;
+  border:none;
+  outline:none;
+  font-size:15px;
+  margin-bottom:12px;
+}
+
 button{
-background:linear-gradient(45deg,#ff00cc,#00eaff);
-color:#fff;
-cursor:pointer;
+  width:92%;
+  padding:12px;
+  border:none;
+  border-radius:24px;
+  font-size:16px;
+  cursor:pointer;
+  margin-bottom:10px;
 }
-#result{margin-top:15px;font-size:1.1em}
-.badge{
-display:inline-block;
-padding:6px 10px;
-margin:4px;
-border-radius:10px;
-background:rgba(255,255,255,.2);
-font-size:.8em;
+
+.whatsapp{background:#25D366;color:#fff}
+.copy{background:#ff9800;color:#fff}
+.music{background:#9c27b0;color:#fff}
+
+/* Bottom */
+.bottom{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#000;
+  padding:10px;
+  font-size:14px;
+}
+.bottom a{
+  color:#ffeb3b;
+  text-decoration:none;
+  font-weight:600;
+}
+
+/* Top Insta */
+.top-insta{
+  position:fixed;
+  top:12px;
+  right:14px;
+  font-size:14px;
+}
+.top-insta a{
+  color:#fff;
+  text-decoration:none;
+  font-weight:600;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🌈 HOLI – 1000 FEATURES EDITION 🚀</h1>
-
-<div class="box">
-<input id="name" placeholder="Apna naam likhiye">
-<br>
-<button onclick="generate()">Wishes Banaye</button>
-<button onclick="share()">Share</button>
-
-<div id="result"></div>
+<div class="top-insta">
+  <a href="intent://instagram.com/_u/rp_gupta_07#Intent;package=com.instagram.android;scheme=https;end;"
+     onclick="fallbackInsta()"> @rp_gupta_07 </a>
 </div>
 
-<div class="box" id="features"></div>
+<div class="container">
+
+  <div id="fromName">रामप्रकाश</div>
+  <div class="sub">की तरफ से होली की ढेर सारी शुभकामनाएं</div>
+
+  <h1>🎉 Happy Holi 🎉</h1>
+  <div>रंगों का त्योहार</div>
+
+  <div id="timer"></div>
+
+  <img src="https://i.postimg.cc/2S9cK8Ks/holi-festival-colors.jpg">
+
+  <div class="msg">
+    इस होली आपके जीवन में<br>
+    खुशियों के रंग भर जाएं 🌈<br>
+    प्रेम, आनंद और सफलता मिले 💖
+  </div>
+
+  <input type="text" id="nameInput" placeholder="यहाँ अपना नाम लिखें">
+
+  <button class="whatsapp" onclick="shareWhatsApp()">WhatsApp पर शेयर करें</button>
+  <button class="copy" onclick="copyLink()">Link Copy करें</button>
+  <button class="music" onclick="toggleMusic()">🎵 Holi Music</button>
+
+</div>
+
+<div class="bottom">
+  Website Designed & Developed by
+  <a href="intent://instagram.com/_u/rp_gupta_07#Intent;package=com.instagram.android;scheme=https;end;"
+     onclick="fallbackInsta()"> @rp_gupta_07 </a>
+</div>
+
+<audio id="bgMusic" loop>
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">
+</audio>
 
 <script>
-// 🔥 1000 FEATURES CONFIG
-const FEATURES = {};
-for(let i=1;i<=1000;i++){
-FEATURES["feature_"+i]=true;
+function fallbackInsta(){
+  setTimeout(()=>{window.location.href="https://www.instagram.com/rp_gupta_07/"},600)
 }
 
-// 🎯 CORE WISH
-function generate(){
-let n=name.value||"Aapke";
-result.innerHTML=`🎉 <b>${n}</b> ki taraf se<br>
-<b>HAPPY HOLI</b> 🌈<br>
-Rangon se bhari shubhkamnayein 💖`;
-showFeatures();
-}
+/* Name from URL */
+const p=new URLSearchParams(location.search);
+const n=p.get("name");
+if(n) document.getElementById("fromName").innerText=decodeURIComponent(n);
 
-// 📤 SHARE
-function share(){
-let n=name.value||"Aapke";
-let msg=`${n} ki taraf se Happy Holi 🌈🔥`;
-window.open("https://wa.me/?text="+encodeURIComponent(msg));
-}
-
-// 🧠 FEATURE ENGINE DISPLAY
-function showFeatures(){
-let html="<h3>🔥 Active Features</h3>";
-let c=0;
-for(let k in FEATURES){
-if(FEATURES[k]){
-html+=`<span class="badge">${k}</span>`;
-c++;
-if(c>=50) break; // UI limit (backend me 1000 ON)
-}
-}
-html+=`<p>✅ Total Active Features: <b>1000+</b></p>`;
-features.innerHTML=html;
-}
-
-// 🎨 COLOR RAIN (1 of 1000)
+/* Timer (Holi 2026 approx) */
+const target=new Date("2026-03-04T00:00:00").getTime();
 setInterval(()=>{
-let d=document.createElement("div");
-d.style.position="fixed";
-d.style.top="-10px";
-d.style.left=Math.random()*100+"vw";
-d.style.width="12px";
-d.style.height="12px";
-d.style.borderRadius="50%";
-d.style.background=`hsl(${Math.random()*360},100%,50%)`;
-d.style.transition="6s linear";
-document.body.appendChild(d);
-setTimeout(()=>d.style.top="110vh",50);
-setTimeout(()=>d.remove(),6000);
-},200);
+ const d=target-Date.now();
+ if(d<0)return;
+ const days=Math.floor(d/(1000*60*60*24));
+ const hrs=Math.floor((d%(1000*60*60*24))/(1000*60*60));
+ const min=Math.floor((d%(1000*60*60))/(1000*60));
+ document.getElementById("timer").innerText=
+ `⏳ ${days} दिन • ${hrs} घंटे • ${min} मिनट`;
+},1000);
+
+/* WhatsApp */
+function shareWhatsApp(){
+ const name=document.getElementById("nameInput").value.trim();
+ if(!name){alert("नाम लिखें");return;}
+ const link=location.origin+location.pathname+"?name="+encodeURIComponent(name);
+ const msg=`🎉 Happy Holi 🎉
+${name} की तरफ से
+${link}`;
+ window.open("https://wa.me/?text="+encodeURIComponent(msg));
+}
+
+/* Copy link */
+function copyLink(){
+ navigator.clipboard.writeText(location.href);
+ alert("Link copy हो गया");
+}
+
+/* Music */
+let play=false;
+function toggleMusic(){
+ const m=document.getElementById("bgMusic");
+ play=!play;
+ play?m.play():m.pause();
+}
+
+/* Color Splash */
+const colors=["🎨","💥","🌸","🟡","🔵","🔴"];
+for(let i=0;i<25;i++){
+ const s=document.createElement("div");
+ s.className="splash";
+ s.innerText=colors[Math.floor(Math.random()*colors.length)];
+ s.style.left=Math.random()*100+"vw";
+ s.style.animationDuration=5+Math.random()*6+"s";
+ document.body.appendChild(s);
+}
 </script>
 
 </body>
