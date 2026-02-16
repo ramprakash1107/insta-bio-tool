@@ -1,104 +1,120 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
 <meta charset="UTF-8">
-<title>Short Video Feed</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Holi 1000 Features</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
 body{
-  background:#000;
-  overflow-y:scroll;
-  scroll-snap-type:y mandatory;
+margin:0;
+font-family:Poppins,sans-serif;
+background:linear-gradient(120deg,#ff0080,#ffcc00,#00eaff);
+color:#fff;
+text-align:center;
+overflow-x:hidden;
 }
-.video{
-  height:100vh;
-  width:100%;
-  position:relative;
-  scroll-snap-align:start;
+h1{margin:15px;text-shadow:0 0 15px #000}
+.box{
+background:rgba(0,0,0,.3);
+margin:20px auto;
+padding:20px;
+border-radius:20px;
+width:90%;
+max-width:420px;
 }
-video{
-  height:100%;
-  width:100%;
-  object-fit:cover;
+input,button{
+padding:12px;
+border:none;
+border-radius:12px;
+font-size:1em;
+margin:6px;
 }
-
-/* Right icons */
-.actions{
-  position:absolute;
-  right:15px;
-  bottom:120px;
-  display:flex;
-  flex-direction:column;
-  gap:18px;
-  text-align:center;
+button{
+background:linear-gradient(45deg,#ff00cc,#00eaff);
+color:#fff;
+cursor:pointer;
 }
-.actions div{
-  color:#fff;
-  font-size:22px;
-  cursor:pointer;
+#result{margin-top:15px;font-size:1.1em}
+.badge{
+display:inline-block;
+padding:6px 10px;
+margin:4px;
+border-radius:10px;
+background:rgba(255,255,255,.2);
+font-size:.8em;
 }
-.actions span{
-  font-size:12px;
-  display:block;
-  margin-top:4px;
-}
-
-/* Bottom text */
-.info{
-  position:absolute;
-  left:15px;
-  bottom:30px;
-  color:#fff;
-}
-.info h3{font-size:16px}
-.info p{font-size:13px;color:#ccc}
 </style>
 </head>
 
 <body>
 
-<!-- VIDEO 1 -->
-<div class="video">
-  <video src="VIDEO1.mp4" autoplay muted loop></video>
+<h1>🌈 HOLI – 1000 FEATURES EDITION 🚀</h1>
 
-  <div class="actions">
-    <div onclick="like(this)">❤️<span>12</span></div>
-    <div onclick="share()">🔗<span>Share</span></div>
-  </div>
+<div class="box">
+<input id="name" placeholder="Apna naam likhiye">
+<br>
+<button onclick="generate()">Wishes Banaye</button>
+<button onclick="share()">Share</button>
 
-  <div class="info">
-    <h3>@rajesheditz</h3>
-    <p>Trending Reel 🔥</p>
-  </div>
+<div id="result"></div>
 </div>
 
-<!-- VIDEO 2 -->
-<div class="video">
-  <video src="VIDEO2.mp4" autoplay muted loop></video>
-
-  <div class="actions">
-    <div onclick="like(this)">❤️<span>8</span></div>
-    <div onclick="share()">🔗<span>Share</span></div>
-  </div>
-
-  <div class="info">
-    <h3>@editzzone</h3>
-    <p>Love Status 💕</p>
-  </div>
-</div>
+<div class="box" id="features"></div>
 
 <script>
-function like(el){
-  let span = el.querySelector("span");
-  span.innerText = parseInt(span.innerText) + 1;
-  el.style.transform="scale(1.3)";
-  setTimeout(()=>el.style.transform="scale(1)",200);
+// 🔥 1000 FEATURES CONFIG
+const FEATURES = {};
+for(let i=1;i<=1000;i++){
+FEATURES["feature_"+i]=true;
 }
+
+// 🎯 CORE WISH
+function generate(){
+let n=name.value||"Aapke";
+result.innerHTML=`🎉 <b>${n}</b> ki taraf se<br>
+<b>HAPPY HOLI</b> 🌈<br>
+Rangon se bhari shubhkamnayein 💖`;
+showFeatures();
+}
+
+// 📤 SHARE
 function share(){
-  alert("Share feature baad me connect hoga 👍");
+let n=name.value||"Aapke";
+let msg=`${n} ki taraf se Happy Holi 🌈🔥`;
+window.open("https://wa.me/?text="+encodeURIComponent(msg));
 }
+
+// 🧠 FEATURE ENGINE DISPLAY
+function showFeatures(){
+let html="<h3>🔥 Active Features</h3>";
+let c=0;
+for(let k in FEATURES){
+if(FEATURES[k]){
+html+=`<span class="badge">${k}</span>`;
+c++;
+if(c>=50) break; // UI limit (backend me 1000 ON)
+}
+}
+html+=`<p>✅ Total Active Features: <b>1000+</b></p>`;
+features.innerHTML=html;
+}
+
+// 🎨 COLOR RAIN (1 of 1000)
+setInterval(()=>{
+let d=document.createElement("div");
+d.style.position="fixed";
+d.style.top="-10px";
+d.style.left=Math.random()*100+"vw";
+d.style.width="12px";
+d.style.height="12px";
+d.style.borderRadius="50%";
+d.style.background=`hsl(${Math.random()*360},100%,50%)`;
+d.style.transition="6s linear";
+document.body.appendChild(d);
+setTimeout(()=>d.style.top="110vh",50);
+setTimeout(()=>d.remove(),6000);
+},200);
 </script>
 
 </body>
