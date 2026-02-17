@@ -1,80 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Friend Chat</title>
+<title>Private Friend Chat</title>
 
 <style>
 body{
 margin:0;
-font-family:Arial, sans-serif;
+font-family:Arial;
 background:#0f172a;
 color:white;
-display:flex;
-flex-direction:column;
 height:100vh;
 }
-header{
-background:#020617;
+.screen{
+display:none;
+padding:20px;
+}
+.show{display:block;}
+input,button{
+width:100%;
 padding:12px;
-text-align:center;
+margin:8px 0;
+font-size:16px;
+border:none;
+border-radius:8px;
+}
+button{
+background:#22c55e;
 font-weight:bold;
-font-size:18px;
 }
 #chat{
-flex:1;
+height:65vh;
 overflow-y:auto;
+background:#020617;
 padding:10px;
+border-radius:10px;
 }
 .msg{
 background:#1e293b;
-padding:8px 12px;
+padding:8px;
 margin:6px 0;
-border-radius:10px;
-max-width:80%;
+border-radius:8px;
 }
 .me{
 background:#22c55e;
 color:black;
 margin-left:auto;
 }
-footer{
-display:flex;
-}
-input{
-flex:1;
-padding:12px;
-border:none;
-outline:none;
-font-size:16px;
-}
-button{
-padding:12px 18px;
-border:none;
-background:#22c55e;
-font-weight:bold;
-font-size:16px;
-}
 </style>
 </head>
 
 <body>
 
-<header>💬 Friend Chat</header>
+<!-- LOGIN -->
+<div id="login" class="screen show">
+<h2>🔐 Private Chat Login</h2>
+<input id="username" placeholder="Your name">
+<input id="room" placeholder="Room code">
+<button onclick="login()">Enter Chat</button>
+</div>
 
+<!-- CHAT -->
+<div id="chatroom" class="screen">
+<h3 id="roomName"></h3>
 <div id="chat"></div>
-
-<footer>
-<input id="name" placeholder="Your name" style="width:30%">
 <input id="msg" placeholder="Type message...">
 <button onclick="send()">Send</button>
-</footer>
+</div>
 
-<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded } 
+import { getDatabase, ref, push, onChildAdded }
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -89,34 +86,46 @@ appId: "1:1026542245723:web:b892bfcc1d2358a018ac7e"
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const chatRef = ref(db, "messages");
 
-window.send = function(){
-let name = document.getElementById("name").value || "Guest";
-let msg = document.getElementById("msg").value;
+let chatRef;
+let userName = "";
 
-if(msg.trim() !== ""){
-push(chatRef,{
-user:name,
-text:msg
-});
-document.getElementById("msg").value="";
+window.login = function(){
+userName = username.value.trim();
+let roomCode = room.value.trim();
+
+if(userName=="" || roomCode==""){
+alert("Name aur Room code likho");
+return;
 }
-}
+
+document.getElementById("login").classList.remove("show");
+document.getElementById("chatroom").classList.add("show");
+document.getElementById("roomName").innerText = "Room: " + roomCode;
+
+chatRef = ref(db, "rooms/" + roomCode);
 
 onChildAdded(chatRef, (data)=>{
 let m = data.val();
 let div = document.createElement("div");
 div.className = "msg";
 div.innerHTML = "<b>"+m.user+"</b><br>"+m.text;
-
-if(m.user === document.getElementById("name").value){
-div.classList.add("me");
+if(m.user === userName) div.classList.add("me");
+chat.appendChild(div);
+chat.scrollTop = chat.scrollHeight;
+});
 }
 
-document.getElementById("chat").appendChild(div);
-document.getElementById("chat").scrollTop = chat.scrollHeight;
+window.send = function(){
+let text = msg.value;
+if(text.trim()=="") return;
+
+push(chatRef,{
+user:userName,
+text:text
 });
+msg.value="";
+}
 </script>
 
 </body>
