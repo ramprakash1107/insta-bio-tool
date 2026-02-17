@@ -8,65 +8,121 @@
 <style>
 body{
 margin:0;
-font-family:Arial;
-background:#0f172a;
+font-family:system-ui, -apple-system, BlinkMacSystemFont;
+background:#000;
 color:white;
 height:100vh;
+display:flex;
+flex-direction:column;
 }
-.screen{
-display:none;
+
+/* LOGIN */
+#login{
 padding:20px;
 }
-.show{display:block;}
-input,button{
+#login input,#login button{
 width:100%;
-padding:12px;
-margin:8px 0;
-font-size:16px;
+padding:14px;
+margin:10px 0;
+border-radius:10px;
 border:none;
-border-radius:8px;
+font-size:16px;
 }
-button{
-background:#22c55e;
+#login button{
+background:#1d9bf0;
+color:white;
 font-weight:bold;
 }
+
+/* HEADER */
+header{
+padding:12px;
+text-align:center;
+background:#000;
+border-bottom:1px solid #222;
+font-weight:bold;
+}
+
+/* CHAT AREA */
 #chat{
-height:65vh;
+flex:1;
 overflow-y:auto;
-background:#020617;
 padding:10px;
-border-radius:10px;
+background:#000;
+display:flex;
+flex-direction:column;
 }
+
+/* MESSAGE BUBBLES */
 .msg{
-background:#1e293b;
-padding:8px;
+max-width:75%;
+padding:10px 14px;
 margin:6px 0;
-border-radius:8px;
+border-radius:18px;
+font-size:15px;
+word-wrap:break-word;
 }
-.me{
-background:#22c55e;
-color:black;
-margin-left:auto;
+
+.left{
+align-self:flex-start;
+background:#262626;
+border-bottom-left-radius:4px;
+}
+
+.right{
+align-self:flex-end;
+background:#1d9bf0;
+color:white;
+border-bottom-right-radius:4px;
+}
+
+/* INPUT BAR */
+footer{
+display:flex;
+padding:10px;
+background:#000;
+border-top:1px solid #222;
+}
+footer input{
+flex:1;
+padding:12px;
+border-radius:20px;
+border:none;
+outline:none;
+background:#262626;
+color:white;
+font-size:15px;
+}
+footer button{
+margin-left:8px;
+padding:12px 18px;
+border-radius:50%;
+border:none;
+background:#1d9bf0;
+color:white;
+font-weight:bold;
 }
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div id="login" class="screen show">
-<h2>🔐 Private Chat Login</h2>
+<!-- LOGIN SCREEN -->
+<div id="login">
+<h2>🔐 Private Chat</h2>
 <input id="username" placeholder="Your name">
 <input id="room" placeholder="Room code">
 <button onclick="login()">Enter Chat</button>
 </div>
 
-<!-- CHAT -->
-<div id="chatroom" class="screen">
-<h3 id="roomName"></h3>
+<!-- CHAT SCREEN -->
+<div id="chatScreen" style="display:none; flex:1; flex-direction:column;">
+<header id="roomName"></header>
 <div id="chat"></div>
-<input id="msg" placeholder="Type message...">
-<button onclick="send()">Send</button>
+<footer>
+<input id="msg" placeholder="Message...">
+<button onclick="send()">➤</button>
+</footer>
 </div>
 
 <script type="module">
@@ -87,41 +143,47 @@ appId: "1:1026542245723:web:b892bfcc1d2358a018ac7e"
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+let user = "";
 let chatRef;
-let userName = "";
 
 window.login = function(){
-userName = username.value.trim();
+user = username.value.trim();
 let roomCode = room.value.trim();
-
-if(userName=="" || roomCode==""){
+if(!user || !roomCode){
 alert("Name aur Room code likho");
 return;
 }
 
-document.getElementById("login").classList.remove("show");
-document.getElementById("chatroom").classList.add("show");
-document.getElementById("roomName").innerText = "Room: " + roomCode;
+login.style.display="none";
+chatScreen.style.display="flex";
+roomName.innerText = "Room: " + roomCode;
 
-chatRef = ref(db, "rooms/" + roomCode);
+chatRef = ref(db,"rooms/"+roomCode);
 
-onChildAdded(chatRef, (data)=>{
+onChildAdded(chatRef,(data)=>{
 let m = data.val();
 let div = document.createElement("div");
-div.className = "msg";
+div.classList.add("msg");
+
+if(m.user === user){
+div.classList.add("right");
+div.innerText = m.text;
+}else{
+div.classList.add("left");
 div.innerHTML = "<b>"+m.user+"</b><br>"+m.text;
-if(m.user === userName) div.classList.add("me");
+}
+
 chat.appendChild(div);
 chat.scrollTop = chat.scrollHeight;
 });
 }
 
 window.send = function(){
-let text = msg.value;
-if(text.trim()=="") return;
+let text = msg.value.trim();
+if(text==="") return;
 
 push(chatRef,{
-user:userName,
+user:user,
 text:text
 });
 msg.value="";
