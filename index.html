@@ -36,11 +36,11 @@ font-weight:bold;
 
 /* HEADER */
 header{
-padding:12px;
-text-align:center;
+padding:10px;
 border-bottom:1px solid #222;
-font-weight:bold;
 }
+#roomName{font-weight:bold;}
+#online{font-size:12px;color:#aaa;}
 
 /* CHAT */
 #chat{
@@ -70,6 +70,20 @@ align-self:flex-end;
 background:#1d9bf0;
 color:white;
 border-bottom-right-radius:4px;
+}
+
+.seen{
+font-size:11px;
+color:#aaa;
+text-align:right;
+margin-right:8px;
+}
+
+/* TYPING */
+#typing{
+font-size:12px;
+color:#aaa;
+padding-left:10px;
 }
 
 /* INPUT */
@@ -109,17 +123,23 @@ color:white;
 
 <!-- CHAT -->
 <div id="chatScreen" style="display:none; flex:1; flex-direction:column;">
-<header id="roomName"></header>
+<header>
+<div id="roomName"></div>
+<div id="online"></div>
+</header>
+
 <div id="chat"></div>
+<div id="typing"></div>
+
 <footer>
-<input id="msg" placeholder="Message...">
+<input id="msg" placeholder="Message..." oninput="typingStatus(true)">
 <button onclick="sendMsg()">➤</button>
 </footer>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded }
+import { getDatabase, ref, push, onChildAdded, set, onValue, update }
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -135,54 +155,82 @@ appId: "1:1026542245723:web:b892bfcc1d2358a018ac7e"
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-let currentUser = "";
-let chatRef = null;
+let user="", room="", chatRef, userRef, typingRef;
 
 window.enterChat = function(){
-const nameInput = document.getElementById("username").value.trim();
-const roomInput = document.getElementById("roomcode").value.trim();
+user = username.value.trim();
+room = roomcode.value.trim();
+if(!user || !room){ alert("Name aur room code likho"); return; }
 
-if(nameInput === "" || roomInput === ""){
-alert("Name aur Room code likho");
-return;
+loginBox.style.display="none";
+chatScreen.style.display="flex";
+roomName.innerText = "Room: " + room;
+
+chatRef = ref(db,"rooms/"+room+"/messages");
+userRef = ref(db,"rooms/"+room+"/users/"+user);
+typingRef = ref(db,"rooms/"+room+"/typing/"+user);
+
+set(userRef,true);
+
+/* ONLINE USERS */
+onValue(ref(db,"rooms/"+room+"/users"), snap=>{
+let count = snap.exists() ? Object.keys(snap.val()).length : 0;
+online.innerText = count + " online";
+});
+
+/* TYPING STATUS */
+onValue(ref(db,"rooms/"+room+"/typing"), snap=>{
+typing.innerText="";
+snap.forEach(c=>{
+if(c.key !== user && c.val()===true){
+typing.innerText = c.key + " typing...";
 }
+});
+});
 
-currentUser = nameInput;
-
-document.getElementById("loginBox").style.display="none";
-document.getElementById("chatScreen").style.display="flex";
-document.getElementById("roomName").innerText = "Room: " + roomInput;
-
-chatRef = ref(db,"rooms/"+roomInput);
-
-onChildAdded(chatRef,(data)=>{
-const m = data.val();
-const div = document.createElement("div");
+/* MESSAGES + SEEN */
+onChildAdded(chatRef, snap=>{
+let m = snap.val();
+let div = document.createElement("div");
 div.classList.add("msg");
 
-if(m.user === currentUser){
+if(m.user === user){
 div.classList.add("right");
 div.innerText = m.text;
 }else{
 div.classList.add("left");
 div.innerHTML = "<b>"+m.user+"</b><br>"+m.text;
+update(ref(db,"rooms/"+room+"/messages/"+snap.key),{seen:true});
 }
 
-document.getElementById("chat").appendChild(div);
-document.getElementById("chat").scrollTop =
-document.getElementById("chat").scrollHeight;
+chat.appendChild(div);
+
+if(m.user === user){
+let seen = document.createElement("div");
+seen.className="seen";
+seen.innerText = m.seen ? "Seen ✔✔" : "Sent ✔";
+chat.appendChild(seen);
+}
+
+chat.scrollTop = chat.scrollHeight;
 });
 }
 
 window.sendMsg = function(){
-const text = document.getElementById("msg").value.trim();
-if(text === "") return;
+let text = msg.value.trim();
+if(text==="") return;
 
 push(chatRef,{
-user: currentUser,
-text: text
+user:user,
+text:text,
+seen:false
 });
-document.getElementById("msg").value="";
+msg.value="";
+set(typingRef,false);
+}
+
+window.typingStatus = function(v){
+set(typingRef,v);
 }
 </script>
 
