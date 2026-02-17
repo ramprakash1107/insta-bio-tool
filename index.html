@@ -34,14 +34,6 @@ color:white;
 font-weight:bold;
 }
 
-/* HEADER */
-header{
-padding:10px;
-border-bottom:1px solid #222;
-}
-#roomName{font-weight:bold;}
-#online{font-size:12px;color:#aaa;}
-
 /* CHAT */
 #chat{
 flex:1;
@@ -57,36 +49,37 @@ padding:10px 14px;
 margin:6px 0;
 border-radius:18px;
 font-size:15px;
+position:relative;
 }
 
 .left{
 align-self:flex-start;
 background:#262626;
-border-bottom-left-radius:4px;
 }
 
 .right{
 align-self:flex-end;
 background:#1d9bf0;
 color:white;
-border-bottom-right-radius:4px;
 }
 
-.seen{
-font-size:11px;
-color:#aaa;
-text-align:right;
-margin-right:8px;
-}
-
-/* TYPING */
-#typing{
+.deleteBtn{
+position:absolute;
+top:-6px;
+right:-6px;
+background:red;
+color:white;
+border:none;
+border-radius:50%;
 font-size:12px;
-color:#aaa;
-padding-left:10px;
+padding:2px 6px;
+display:none;
 }
 
-/* INPUT */
+.msg.right:hover .deleteBtn{
+display:block;
+}
+
 footer{
 display:flex;
 padding:10px;
@@ -113,7 +106,6 @@ color:white;
 
 <body>
 
-<!-- LOGIN -->
 <div id="loginBox">
 <h2>🔐 Private Chat</h2>
 <input id="username" placeholder="Your name">
@@ -121,74 +113,38 @@ color:white;
 <button onclick="enterChat()">Enter Chat</button>
 </div>
 
-<!-- CHAT -->
 <div id="chatScreen" style="display:none; flex:1; flex-direction:column;">
-<header>
-<div id="roomName"></div>
-<div id="online"></div>
-</header>
-
 <div id="chat"></div>
-<div id="typing"></div>
-
 <footer>
-<input id="msg" placeholder="Message..." oninput="typingStatus(true)">
+<input id="msg" placeholder="Message...">
 <button onclick="sendMsg()">➤</button>
 </footer>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, set, onValue, update }
+import { getDatabase, ref, push, onChildAdded, remove }
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
 
 const firebaseConfig = {
 apiKey: "AIzaSyARuO_pN2vdYrVKYkKHHaNys7WI8HqM6I4",
-authDomain: "friendchat-43941.firebaseapp.com",
-databaseURL: "https://friendchat-43941-default-rtdb.firebaseio.com",
-projectId: "friendchat-43941",
-storageBucket: "friendchat-43941.firebasestorage.app",
-messagingSenderId: "1026542245723",
-appId: "1:1026542245723:web:b892bfcc1d2358a018ac7e"
+databaseURL: "https://friendchat-43941-default-rtdb.firebaseio.com"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-let user="", room="", chatRef, userRef, typingRef;
+let user="", room="", chatRef;
 
 window.enterChat = function(){
 user = username.value.trim();
 room = roomcode.value.trim();
-if(!user || !room){ alert("Name aur room code likho"); return; }
+if(!user || !room) return alert("Name & Room code likho");
 
 loginBox.style.display="none";
 chatScreen.style.display="flex";
-roomName.innerText = "Room: " + room;
-
 chatRef = ref(db,"rooms/"+room+"/messages");
-userRef = ref(db,"rooms/"+room+"/users/"+user);
-typingRef = ref(db,"rooms/"+room+"/typing/"+user);
 
-set(userRef,true);
-
-/* ONLINE USERS */
-onValue(ref(db,"rooms/"+room+"/users"), snap=>{
-let count = snap.exists() ? Object.keys(snap.val()).length : 0;
-online.innerText = count + " online";
-});
-
-/* TYPING STATUS */
-onValue(ref(db,"rooms/"+room+"/typing"), snap=>{
-typing.innerText="";
-snap.forEach(c=>{
-if(c.key !== user && c.val()===true){
-typing.innerText = c.key + " typing...";
-}
-});
-});
-
-/* MESSAGES + SEEN */
 onChildAdded(chatRef, snap=>{
 let m = snap.val();
 let div = document.createElement("div");
@@ -197,21 +153,19 @@ div.classList.add("msg");
 if(m.user === user){
 div.classList.add("right");
 div.innerText = m.text;
+
+let del = document.createElement("button");
+del.innerText="×";
+del.className="deleteBtn";
+del.onclick=()=>remove(ref(db,"rooms/"+room+"/messages/"+snap.key));
+div.appendChild(del);
+
 }else{
 div.classList.add("left");
-div.innerHTML = "<b>"+m.user+"</b><br>"+m.text;
-update(ref(db,"rooms/"+room+"/messages/"+snap.key),{seen:true});
+div.innerText = m.user+": "+m.text;
 }
 
 chat.appendChild(div);
-
-if(m.user === user){
-let seen = document.createElement("div");
-seen.className="seen";
-seen.innerText = m.seen ? "Seen ✔✔" : "Sent ✔";
-chat.appendChild(seen);
-}
-
 chat.scrollTop = chat.scrollHeight;
 });
 }
@@ -219,18 +173,8 @@ chat.scrollTop = chat.scrollHeight;
 window.sendMsg = function(){
 let text = msg.value.trim();
 if(text==="") return;
-
-push(chatRef,{
-user:user,
-text:text,
-seen:false
-});
+push(chatRef,{user:user,text:text});
 msg.value="";
-set(typingRef,false);
-}
-
-window.typingStatus = function(v){
-set(typingRef,v);
 }
 </script>
 
