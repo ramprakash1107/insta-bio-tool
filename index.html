@@ -93,9 +93,13 @@ height:16px;
 
 /* INPUT */
 footer{
+position:sticky;
+bottom:0;
 display:flex;
 padding:8px;
 border-top:1px solid #222;
+background:#000;
+z-index:10;
 }
 footer input{
 flex:1;
@@ -133,6 +137,7 @@ font-weight:bold;
 <header>
 <div id="roomName"></div>
 <div id="online"></div>
+<button onclick="leaveRoom()" style="float:right;padding:4px 8px;background:red;color:white;border:none;border-radius:6px;">Leave Room</button>
 </header>
 
 <div id="chat"></div>
@@ -153,13 +158,17 @@ function setVH(){
 setVH();
 window.addEventListener('resize', ()=>{
   setVH();
-  let chat = document.getElementById("chat");
-  if(chat) chat.scrollTop = chat.scrollHeight;
+  requestAnimationFrame(()=>{
+    const chat = document.getElementById("chat");
+    if(chat){
+      chat.scrollTop = chat.scrollHeight;
+    }
+  });
 });
 
 /* 🔥 FIREBASE */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, set, onValue, update }
+import { getDatabase, ref, push, onChildAdded, set, onValue, update, remove } 
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -175,8 +184,13 @@ appId: "1:1026542245723:web:b892bfcc1d2358a018ac7e"
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+/* GLOBALS */
 let user="", room="", chatRef, userRef, typingRef;
 
+/* AUTO DELETE TIME */
+const AUTO_DELETE_TIME = 24*60*60*1000; // 24 hours
+
+/* ENTER ROOM */
 window.enterChat = function(){
 user = document.getElementById("username").value.trim();
 room = document.getElementById("roomcode").value.trim();
@@ -190,67 +204,109 @@ chatRef = ref(db,"rooms/"+room+"/messages");
 userRef = ref(db,"rooms/"+room+"/users/"+user);
 typingRef = ref(db,"rooms/"+room+"/typing/"+user);
 
+/* set user online */
 set(userRef,true);
 
 /* ONLINE USERS */
 onValue(ref(db,"rooms/"+room+"/users"), snap=>{
-let count = snap.exists() ? Object.keys(snap.val()).length : 0;
-online.innerText = count + " online";
+  let count = snap.exists() ? Object.keys(snap.val()).length : 0;
+  online.innerText = count + " online";
 });
 
 /* TYPING STATUS */
 onValue(ref(db,"rooms/"+room+"/typing"), snap=>{
-typing.innerText="";
-snap.forEach(c=>{
-if(c.key !== user && c.val()===true){
-typing.innerText = c.key + " typing...";
-}
-});
+  typing.innerText="";
+  snap.forEach(c=>{
+    if(c.key !== user && c.val()===true){
+      typing.innerText = c.key + " typing...";
+    }
+  });
 });
 
-/* MESSAGES + SEEN */
+/* DELETE OLD MESSAGES (auto-delete) */
+onValue(chatRef, snap=>{
+  if(!snap.exists()) return;
+  const now = Date.now();
+  snap.forEach(child=>{
+    const msg = child.val();
+    if(msg.time && now - msg.time > AUTO_DELETE_TIME){
+      remove(ref(db,"rooms/"+room+"/messages/"+child.key));
+    }
+  });
+});
+
+/* DISPLAY MESSAGES */
 onChildAdded(chatRef, snap=>{
-let m = snap.val();
-let div = document.createElement("div");
-div.classList.add("msg");
+  let m = snap.val();
+  let div = document.createElement("div");
+  div.classList.add("msg");
 
-if(m.user === user){
-div.classList.add("right");
-div.innerText = m.text;
-}else{
-div.classList.add("left");
-div.innerHTML = "<b>"+m.user+"</b><br>"+m.text;
-update(ref(db,"rooms/"+room+"/messages/"+snap.key),{seen:true});
-}
+  if(m.user === user){
+    div.classList.add("right");
+    div.innerText = m.text;
+  }else{
+    div.classList.add("left");
+    div.innerHTML = "<b>"+m.user+"</b><br>"+m.text;
+    update(ref(db,"rooms/"+room+"/messages/"+snap.key),{seen:true});
+  }
 
-chat.appendChild(div);
+  chat.appendChild(div);
 
-if(m.user === user){
-let seen = document.createElement("div");
-seen.className="seen";
-seen.innerText = m.seen ? "Seen ✔✔" : "Sent ✔";
-chat.appendChild(seen);
-}
+  if(m.user === user){
+    let seen = document.createElement("div");
+    seen.className="seen";
+    seen.innerText = m.seen ? "Seen ✔✔" : "Sent ✔";
+    chat.appendChild(seen);
+  }
 
-chat.scrollTop = chat.scrollHeight;
+  chat.scrollTop = chat.scrollHeight;
 });
 }
 
+/* SEND MESSAGE */
 window.sendMsg = function(){
 let text = document.getElementById("msg").value.trim();
 if(text==="") return;
 
 push(chatRef,{
-user:user,
-text:text,
-seen:false
+  user:user,
+  text:text,
+  seen:false,
+  time: Date.now()
 });
+
 document.getElementById("msg").value="";
 set(typingRef,false);
 }
 
+/* TYPING STATUS */
 window.typingStatus = function(v){
 set(typingRef,v);
+}
+
+/* LEAVE ROOM (DELETE ALL MESSAGES + TYPING + USER) */
+window.leaveRoom = function(){
+  if(!room || !user) return;
+  // Delete all messages
+  onValue(chatRef, snap=>{
+    if(!snap.exists()) return;
+    snap.forEach(child=>{
+      remove(ref(db,"rooms/"+room+"/messages/"+child.key));
+    });
+  });
+  // Delete typing status
+  remove(ref(db,"rooms/"+room+"/typing/"+user));
+  // Remove user
+  remove(userRef);
+  // Go back to login
+  chatScreen.style.display="none";
+  loginBox.style.display="block";
+  document.getElementById("chat").innerHTML="";
+  document.getElementById("typing").innerText="";
+  roomName.innerText="";
+  online.innerText="";
+  user="";
+  room="";
 }
 </script>
 
