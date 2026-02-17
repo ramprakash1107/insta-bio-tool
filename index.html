@@ -11,8 +11,8 @@
 body{
   margin:0;
   font-family:system-ui;
-  background:#000;
-  color:white;
+  background:#000;       /* Dark mode fixed */
+  color:white;           /* Dark mode text */
   height:calc(var(--vh) * 100);
   display:flex;
   flex-direction:column;
@@ -102,7 +102,7 @@ footer{
   display:flex;
   padding:8px;
   border-top:1px solid #222;
-  background:#000;
+  background:#000;   /* Dark mode fixed */
   z-index: 20;
 }
 footer input{
@@ -203,7 +203,7 @@ let user="", room="", chatRef, userRef, typingRef;
 const AUTO_DELETE_TIME = 24*60*60*1000; 
 
 /* ENTER ROOM */
-function enterChat(){
+window.enterChat = function(){
   user = usernameInput.value.trim();
   room = roomcodeInput.value.trim();
   if(!user || !room){ alert("Name aur Room code likho"); return; }
@@ -275,10 +275,10 @@ function enterChat(){
 }
 
 /* Bind enter button */
-enterBtn.addEventListener("click", enterChat);
+enterBtn.addEventListener("click", window.enterChat);
 
 /* SEND MESSAGE */
-function sendMsg(){
+window.sendMsg = function(){
   let text = msgInput.value.trim();
   if(text==="") return;
 
@@ -294,12 +294,12 @@ function sendMsg(){
 }
 
 /* TYPING STATUS */
-function typingStatus(v){
+window.typingStatus = function(v){
   set(typingRef,v);
 }
 
 /* LEAVE ROOM - delete all messages, typing status, user */
-function leaveRoom(){
+window.leaveRoom = function(){
   if(!room || !user) return;
 
   // Delete all messages in room
