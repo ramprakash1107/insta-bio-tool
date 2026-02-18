@@ -2,71 +2,184 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Instagram-Style DM Chat</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Private Friend Chat</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,BlinkMacSystemFont;}
-body{height:100vh;background:#0d0d0d;color:#fff;display:flex;flex-direction:column;}
-#loginBox{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;}
-#loginBox input,#loginBox button{padding:12px;margin:8px;width:250px;border-radius:12px;border:none;font-size:16px;}
-#loginBox input{background:#222;color:#fff;}
-#loginBox button{background:#1d9bf0;color:#fff;font-weight:bold;cursor:pointer;}
-#loginBox button:hover{background:#0c7cd5;}
-#chatScreen{display:none;flex:1;flex-direction:row;height:100%;overflow:hidden;}
-#userList{width:250px;border-right:1px solid #222;background:#111;overflow-y:auto;transition:all 0.3s;}
-#userList .user{padding:12px;cursor:pointer;border-bottom:1px solid #222;display:flex;align-items:center;gap:8px;}
-#userList .user:hover{background:#1d1d1d;}
-#userList .user.active{background:#1d9bf0;color:#fff;}
-.user .onlineDot{width:10px;height:10px;border-radius:50%;background:#0f0;}
-#chatArea{flex:1;display:flex;flex-direction:column;}
-header{flex-shrink:0;padding:12px;border-bottom:1px solid #222;background:#111;display:flex;justify-content:space-between;align-items:center;}
-#chat{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;}
-.msg{max-width:70%;padding:10px 14px;margin:6px 0;border-radius:18px;word-wrap:break-word;font-size:15px;opacity:0;transition:0.3s;box-shadow:0 1px 3px rgba(0,0,0,0.3);}
-.left{align-self:flex-start;background:#1e1e1e;border-bottom-left-radius:4px;}
-.right{align-self:flex-end;background:#1d9bf0;color:#fff;border-bottom-right-radius:4px;}
-.seen{font-size:11px;color:#aaa;text-align:right;margin-right:8px;}
-footer{flex-shrink:0;display:flex;gap:8px;padding:8px;border-top:1px solid #222;background:#111;}
-footer input{flex:1;padding:12px;border-radius:20px;border:none;background:#1e1e1e;color:#fff;font-size:14px;}
-footer button{padding:0 16px;border-radius:50%;border:none;background:#1d9bf0;color:#fff;font-size:18px;cursor:pointer;}
-#typing{font-size:12px;color:#aaa;padding-left:10px;height:16px;font-style:italic;}
-#leaveBtn{background:#e53935;border:none;color:#fff;padding:4px 8px;border-radius:6px;font-size:12px;cursor:pointer;}
-/* Responsive mobile */
-@media(max-width:768px){
-  #userList{position:absolute;z-index:10;left:-250px;top:0;height:100%;}
-  #userList.show{left:0;}
-  #toggleUsers{display:block;cursor:pointer;padding:8px;background:#1d9bf0;border-radius:6px;}
+:root{ --vh:1vh; }
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont;
+  background:#000;
+  color:#fff;
+  height:calc(var(--vh)*100);
+  display:flex;
+  flex-direction:column;
 }
-#toggleUsers{display:none;}
+
+/* LOGIN */
+#loginBox{
+  padding:20px;
+}
+#loginBox h2{margin-bottom:5px;}
+#credit{font-size:12px;color:#777;margin-bottom:15px;}
+#loginBox input,#loginBox button{
+  width:100%;
+  padding:14px;
+  margin:10px 0;
+  border-radius:12px;
+  border:none;
+  font-size:16px;
+}
+#loginBox input{background:#111;color:#fff;}
+#loginBox button{
+  background:#1d9bf0;
+  color:#fff;
+  font-weight:bold;
+}
+
+/* CHAT SCREEN */
+#chatScreen{
+  display:none;
+  flex:1;
+  flex-direction:column;
+  min-height:0;
+}
+
+/* HEADER (NEVER MOVE) */
+header{
+  flex-shrink:0;
+  padding:10px;
+  border-bottom:1px solid #222;
+  background:#000;
+  position:relative;
+}
+#roomName{font-weight:600;}
+#online{font-size:12px;color:#aaa;}
+
+/* CHAT AREA */
+#chat{
+  flex:1;
+  overflow-y:auto;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+}
+
+/* MESSAGE */
+.msg{
+  max-width:75%;
+  padding:10px 14px;
+  margin:6px 0;
+  border-radius:18px;
+  word-wrap:break-word;
+  font-size:15px;
+}
+.left{
+  align-self:flex-start;
+  background:#1e1e1e;
+  border-bottom-left-radius:4px;
+}
+.right{
+  align-self:flex-end;
+  background:#1d9bf0;
+  color:#fff;
+  border-bottom-right-radius:4px;
+}
+.seen{
+  font-size:11px;
+  color:#aaa;
+  text-align:right;
+  margin-right:8px;
+}
+
+/* TYPING */
+#typing{
+  font-size:12px;
+  color:#aaa;
+  padding-left:10px;
+  height:16px;
+}
+
+/* FOOTER */
+footer{
+  flex-shrink:0;
+  display:flex;
+  gap:8px;
+  padding:8px;
+  border-top:1px solid #222;
+  background:#000;
+}
+footer input{
+  flex:1;
+  padding:12px;
+  border-radius:20px;
+  border:none;
+  background:#1e1e1e;
+  color:#fff;
+  font-size:14px;
+}
+footer button{
+  padding:0 16px;
+  border-radius:50%;
+  border:none;
+  background:#1d9bf0;
+  color:#fff;
+  font-size:18px;
+}
+
+/* LEAVE */
+#leaveBtn{
+  position:absolute;
+  right:10px;
+  top:10px;
+  background:#e53935;
+  border:none;
+  color:#fff;
+  padding:4px 8px;
+  border-radius:6px;
+  font-size:12px;
+}
 </style>
 </head>
+
 <body>
 
 <!-- LOGIN -->
 <div id="loginBox">
-  <h2>🔐 DM Chat</h2>
-  <input id="username" placeholder="Enter your username">
+  <h2>🔐 Private Chat</h2>
+  <div id="credit">Website by @rp_gupta_07</div>
+  <input id="username" placeholder="Your name">
+  <input id="roomcode" placeholder="Room code">
   <button id="enterBtn">Enter Chat</button>
 </div>
 
 <!-- CHAT -->
 <div id="chatScreen">
-  <div id="userList"></div>
-  <div id="chatArea">
-    <header>
-      <span id="toggleUsers">☰ Users</span>
-      <div id="chatWith">Select a user</div>
-      <button id="leaveBtn">Leave</button>
-    </header>
-    <div id="chat"></div>
-    <div id="typing"></div>
-    <footer>
-      <input id="msg" placeholder="Type a message...">
-      <button id="sendBtn">➤</button>
-    </footer>
-  </div>
+  <header>
+    <div id="roomName"></div>
+    <div id="online"></div>
+    <button id="leaveBtn">Leave</button>
+  </header>
+
+  <div id="chat"></div>
+  <div id="typing"></div>
+
+  <footer>
+    <input id="msg" placeholder="Message...">
+    <button id="sendBtn">➤</button>
+  </footer>
 </div>
 
 <script type="module">
+function setVH(){
+  document.documentElement.style.setProperty('--vh', window.innerHeight*0.01+'px');
+}
+setVH();
+window.addEventListener('resize', setVH);
+
+/* FIREBASE */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded, onValue, set, remove, update } 
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
@@ -84,123 +197,117 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* DOM */
-const loginBox=document.getElementById("loginBox");
-const chatScreen=document.getElementById("chatScreen");
-const userListDiv=document.getElementById("userList");
-const chatDiv=document.getElementById("chat");
-const typingDiv=document.getElementById("typing");
-const chatWithDiv=document.getElementById("chatWith");
-const enterBtn=document.getElementById("enterBtn");
-const sendBtn=document.getElementById("sendBtn");
-const leaveBtn=document.getElementById("leaveBtn");
-const usernameInput=document.getElementById("username");
-const msgInput=document.getElementById("msg");
-const toggleUsers=document.getElementById("toggleUsers");
+/* DOM ELEMENTS */
+const loginBox = document.getElementById("loginBox");
+const chatScreen = document.getElementById("chatScreen");
+const chatDiv = document.getElementById("chat");
+const typingDiv = document.getElementById("typing");
+const roomName = document.getElementById("roomName");
+const online = document.getElementById("online");
+const enterBtn = document.getElementById("enterBtn");
+const sendBtn = document.getElementById("sendBtn");
+const leaveBtn = document.getElementById("leaveBtn");
+const usernameInput = document.getElementById("username");
+const roomInput = document.getElementById("roomcode");
+const msgInput = document.getElementById("msg");
 
-let user="", selectedUser="", chatRef, typingRef, userRef;
+/* STATE */
+let user="", room="", chatRef, typingRef, userRef;
 
-/* ENTER */
-enterBtn.addEventListener("click", async()=>{
-  user=usernameInput.value.trim();
-  if(!user){ alert("Enter username"); return; }
+/* ENTER CHAT */
+enterBtn.addEventListener("click", async ()=>{
+  user = usernameInput.value.trim();
+  room = roomInput.value.trim();
+  if(!user||!room){ alert("Name aur Room code likho"); return; }
 
-  const userCheckRef = ref(db,`users/${user}`);
-  let exists=false;
-  await onValue(userCheckRef,snap=>{if(snap.exists()) exists=true;},{onlyOnce:true});
-  if(exists){ alert("Username exists! Try another."); return; }
+  // CLEAR OLD CHAT
+  chatDiv.innerHTML = "";
+  typingDiv.textContent = "";
+
+  // CHECK USERNAME UNIQUE
+  const userRefCheck = ref(db,`rooms/${room}/users/${user}`);
+  let exists = false;
+  await onValue(userRefCheck, snap=>{
+    if(snap.exists()) exists = true;
+  }, { onlyOnce:true });
+
+  if(exists){
+    alert("Ye username is room me already exist karta hai! Alag name try karo.");
+    return;
+  }
 
   loginBox.style.display="none";
   chatScreen.style.display="flex";
+  roomName.textContent = "Room: "+room;
 
-  userRef=ref(db,`users/${user}`);
+  chatRef = ref(db,`rooms/${room}/messages`);
+  typingRef = ref(db,`rooms/${room}/typing/${user}`);
+  userRef = ref(db,`rooms/${room}/users/${user}`);
+
   set(userRef,true);
+  set(typingRef,false);
 
-  // Listen for users
-  onValue(ref(db,"users"), snap => {
-    const prevSelected = selectedUser;
-    userListDiv.innerHTML = "";
-    snap.forEach(c => {
-      if(c.key !== user){
-        const div = document.createElement("div");
-        div.classList.add("user");
-        div.textContent = c.key;
-        const onlineDot = document.createElement("span");
-        onlineDot.classList.add("onlineDot");
-        div.prepend(onlineDot);
-        div.classList.toggle("active", c.key === prevSelected);
-        div.onclick = () => {
-          selectedUser = c.key;
-          Array.from(userListDiv.children).forEach(d=>d.classList.remove("active"));
-          div.classList.add("active");
-          openChat(selectedUser);
-          userListDiv.classList.remove("show"); // hide on mobile
-        }
-        userListDiv.appendChild(div);
-      }
+  // ONLINE USERS
+  onValue(ref(db,`rooms/${room}/users`), snap=>{
+    online.textContent = (snap.exists()?Object.keys(snap.val()).length:0) + " online";
+  });
+
+  // TYPING STATUS
+  onValue(ref(db,`rooms/${room}/typing`), snap=>{
+    let text="";
+    snap.forEach(c=>{
+      if(c.key!==user && c.val()===true) text+=c.key+" typing...";
     });
+    typingDiv.textContent = text;
+  });
+
+  // MESSAGES DISPLAY + SEEN
+  onChildAdded(chatRef, snap=>{
+    const m = snap.val();
+    const div = document.createElement("div");
+    div.className = "msg "+(m.user===user?"right":"left");
+    div.innerHTML = (m.user===user ? m.text : "<b>"+m.user+"</b><br>"+m.text);
+    chatDiv.appendChild(div);
+
+    if(m.user!==user){
+      update(ref(db,`rooms/${room}/messages/${snap.key}`),{seen:true});
+    }
+
+    if(m.user===user){
+      const seenDiv = document.createElement("div");
+      seenDiv.className="seen";
+      seenDiv.textContent = m.seen?"Seen ✔✔":"Sent ✔";
+      chatDiv.appendChild(seenDiv);
+    }
+
+    chatDiv.scrollTop = chatDiv.scrollHeight;
   });
 });
 
-/* OPEN CHAT */
-function openChat(otherUser){
-  chatDiv.innerHTML="";
-  chatWithDiv.textContent="Chat with: "+otherUser;
-
-  const path=[user,otherUser].sort().join("_");
-  chatRef=ref(db,`private_chats/${path}/messages`);
-  typingRef=ref(db,`private_chats/${path}/typing/${user}`);
-  set(typingRef,false);
-
-  onChildAdded(chatRef,snap=>{
-    const m=snap.val();
-    const div=document.createElement("div");
-    div.className="msg "+(m.user===user?"right":"left");
-    div.innerHTML=m.user===user?m.text:"<b>"+m.user+"</b><br>"+m.text;
-    chatDiv.appendChild(div);
-    setTimeout(()=>div.style.opacity=1,50);
-
-    if(m.user!==user) update(ref(db,`private_chats/${path}/messages/${snap.key}`),{seen:true});
-    if(m.user===user){
-      const seenDiv=document.createElement("div");
-      seenDiv.className="seen";
-      seenDiv.textContent=m.seen?"Seen ✔✔":"Sent ✔";
-      chatDiv.appendChild(seenDiv);
-    }
-    chatDiv.scrollTop=chatDiv.scrollHeight;
-  });
-
-  // Typing indicator
-  onValue(ref(db,`private_chats/${path}/typing`),snap=>{
-    let text="";
-    snap.forEach(c=>{ if(c.key!==user && c.val()===true) text+=c.key+" typing... "; });
-    typingDiv.textContent=text;
-  });
-}
-
 /* SEND MESSAGE */
-sendBtn.addEventListener("click",sendMessage);
-msgInput.addEventListener("keypress",e=>{if(e.key==="Enter") sendMessage();});
-function sendMessage(){
-  if(!selectedUser) return alert("Select a user first!");
-  const text=msgInput.value.trim(); if(!text) return;
+sendBtn.addEventListener("click", ()=>{
+  const text = msgInput.value.trim();
+  if(!text) return;
   push(chatRef,{user,text,time:Date.now(),seen:false});
   msgInput.value="";
   set(typingRef,false);
-}
+});
 
-/* TYPING */
-msgInput.addEventListener("input",()=>{ if(typingRef) set(typingRef,msgInput.value.trim()!==""); });
+/* TYPING STATUS */
+msgInput.addEventListener("input",()=>{
+  set(typingRef,msgInput.value.trim()!=="");
+});
 
-/* LEAVE */
-leaveBtn.addEventListener("click",()=>{
-  remove(userRef);
-  if(typingRef) remove(typingRef);
+/* LEAVE ROOM */
+leaveBtn.addEventListener("click", ()=>{
+  remove(ref(db,`rooms/${room}`));
   location.reload();
 });
 
-/* MOBILE TOGGLE USER LIST */
-toggleUsers.addEventListener("click",()=>{userListDiv.classList.toggle("show");});
+/* FOCUS SCROLL FIX */
+msgInput.addEventListener("focus",()=>{
+  setTimeout(()=>chatDiv.scrollTop=chatDiv.scrollHeight,300);
+});
 </script>
 </body>
 </html>
