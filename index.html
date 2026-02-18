@@ -94,7 +94,6 @@ enterBtn.addEventListener("click", async()=>{
   user=usernameInput.value.trim();
   if(!user){ alert("Enter username"); return; }
 
-  // Check unique username
   const userCheckRef = ref(db,`users/${user}`);
   let exists=false;
   await onValue(userCheckRef,snap=>{if(snap.exists()) exists=true;},{onlyOnce:true});
@@ -104,33 +103,34 @@ enterBtn.addEventListener("click", async()=>{
   chatScreen.style.display="flex";
 
   userRef=ref(db,`users/${user}`);
-  set(userRef,true); // mark online
+  set(userRef,true);
+
+  // Listen for online users
   onValue(ref(db,"users"),snap=>{
     userListDiv.innerHTML="";
     snap.forEach(c=>{
       if(c.key!==user){
         const div=document.createElement("div");
         div.textContent=c.key;
-        div.onclick=()=>selectUser(c.key);
-        if(c.key===selectedUser) div.classList.add("active");
+        div.classList.toggle("active", c.key===selectedUser);
+        div.onclick=()=>{
+          selectedUser=c.key;
+          Array.from(userListDiv.children).forEach(d=>d.classList.remove("active"));
+          div.classList.add("active");
+          openChat(selectedUser);
+        }
         userListDiv.appendChild(div);
       }
     });
   });
 });
 
-/* SELECT USER */
-function selectUser(u){
-  selectedUser=u;
-  chatWithDiv.textContent="Chat with: "+u;
+/* OPEN CHAT */
+function openChat(otherUser){
   chatDiv.innerHTML="";
-  Array.from(userListDiv.children).forEach(div=>{
-    div.classList.remove("active");
-    if(div.textContent===u) div.classList.add("active");
-  });
+  chatWithDiv.textContent="Chat with: "+otherUser;
 
-  // Setup chat path: sorted to avoid duplicate paths
-  const path=[user,u].sort().join("_");
+  const path=[user,otherUser].sort().join("_");
   chatRef=ref(db,`private_chats/${path}/messages`);
   typingRef=ref(db,`private_chats/${path}/typing/${user}`);
   set(typingRef,false);
@@ -138,11 +138,12 @@ function selectUser(u){
   onChildAdded(chatRef,snap=>{
     const m=snap.val();
     const div=document.createElement("div");
-    div.className="msg "+(m.user===user?"right":"left");
+    div.className="msg "+(m.user===user?"right":"left"); // right for sender, left for receiver
     div.innerHTML=m.user===user?m.text:"<b>"+m.user+"</b><br>"+m.text;
     chatDiv.appendChild(div);
     setTimeout(()=>div.style.opacity=1,50);
 
+    if(m.user!==user) update(ref(db,`private_chats/${path}/messages/${snap.key}`),{seen:true});
     if(m.user===user){
       const seenDiv=document.createElement("div");
       seenDiv.className="seen";
@@ -150,12 +151,9 @@ function selectUser(u){
       chatDiv.appendChild(seenDiv);
     }
     chatDiv.scrollTop=chatDiv.scrollHeight;
-
-    // mark seen if message from other
-    if(m.user!==user) update(ref(db,`private_chats/${path}/messages/${snap.key}`),{seen:true});
   });
 
-  // typing indicator
+  // Typing indicator
   onValue(ref(db,`private_chats/${path}/typing`),snap=>{
     let text="";
     snap.forEach(c=>{ if(c.key!==user && c.val()===true) text+=c.key+" typing... "; });
