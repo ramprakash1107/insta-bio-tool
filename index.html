@@ -3,18 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Private Friend Chat + Call</title>
+<title>Private Chat + Audio Call</title>
 
 <style>
-:root{ --vh:1vh; }
-*{ box-sizing:border-box; }
-
 body{
   margin:0;
   font-family:system-ui,-apple-system,BlinkMacSystemFont;
   background:#000;
   color:#fff;
-  height:calc(var(--vh)*100);
+  height:100vh;
   display:flex;
   flex-direction:column;
 }
@@ -34,7 +31,6 @@ body{
 
 /* CHAT */
 #chatScreen{ display:none; flex:1; flex-direction:column; }
-
 header{
   padding:10px;
   border-bottom:1px solid #222;
@@ -47,7 +43,7 @@ header{
   background:#0f9d58;
   border:none;
   color:#fff;
-  padding:4px 8px;
+  padding:6px 10px;
   border-radius:6px;
 }
 #leaveBtn{
@@ -57,10 +53,9 @@ header{
   background:#e53935;
   border:none;
   color:#fff;
-  padding:4px 8px;
+  padding:6px 10px;
   border-radius:6px;
 }
-
 #chat{
   flex:1;
   overflow-y:auto;
@@ -99,38 +94,26 @@ footer button{
   color:#fff;
 }
 
-/* CALL SCREEN */
+/* AUDIO CALL SCREEN */
 #callScreen{
   display:none;
   position:fixed;
   inset:0;
   background:#000;
   z-index:9999;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
 }
-#remoteVideo{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-#localVideo{
-  width:120px;
-  height:160px;
-  position:absolute;
-  right:10px;
-  bottom:90px;
-  border-radius:12px;
-  border:2px solid #fff;
-}
+#callScreen h2{ margin-bottom:30px; }
 #endCall{
-  position:absolute;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
   background:#e53935;
   border:none;
   color:#fff;
-  padding:12px 22px;
+  padding:14px 26px;
   border-radius:30px;
+  font-size:16px;
 }
 </style>
 </head>
@@ -161,23 +144,18 @@ footer button{
   </footer>
 </div>
 
-<!-- CALL -->
+<!-- AUDIO CALL -->
 <div id="callScreen">
-  <video id="remoteVideo" autoplay playsinline></video>
-  <video id="localVideo" autoplay muted playsinline></video>
+  <h2 id="callStatus">🔊 Audio Call</h2>
   <button id="endCall">End Call</button>
 </div>
 
 <script type="module">
-function setVH(){
-  document.documentElement.style.setProperty('--vh',window.innerHeight*0.01+'px');
-}
-setVH(); window.addEventListener('resize',setVH);
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded, set, onValue, remove }
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
 
+/* 🔥 FIREBASE CONFIG (aapka hi) */
 const firebaseConfig = {
   apiKey: "AIzaSyARuO_pN2vdYrVKYkKHHaNys7WI8HqM6I4",
   authDomain: "friendchat-43941.firebaseapp.com",
@@ -191,6 +169,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+/* ELEMENTS */
 const loginBox = document.getElementById("loginBox");
 const chatScreen = document.getElementById("chatScreen");
 const chatDiv = document.getElementById("chat");
@@ -201,14 +180,12 @@ const leaveBtn = document.getElementById("leaveBtn");
 const callBtn = document.getElementById("callBtn");
 
 const callScreen = document.getElementById("callScreen");
-const localVideo = document.getElementById("localVideo");
-const remoteVideo = document.getElementById("remoteVideo");
+const callStatus = document.getElementById("callStatus");
 const endCall = document.getElementById("endCall");
 
-let user="",room="",chatRef;
-let peer,localStream;
+let user="", room="", chatRef;
 
-/* ENTER */
+/* CHAT ENTER */
 enterBtn.onclick=()=>{
   user=username.value.trim();
   room=roomcode.value.trim();
@@ -228,57 +205,95 @@ enterBtn.onclick=()=>{
   });
 };
 
-/* SEND */
+/* SEND MSG */
 sendBtn.onclick=()=>{
   if(!msgInput.value.trim()) return;
   push(chatRef,{user,text:msgInput.value});
   msgInput.value="";
 };
 
-/* CALL */
-callBtn.onclick=async()=>{
-  callScreen.style.display="block";
-  localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:true});
-  localVideo.srcObject=localStream;
+/* ================= AUDIO CALL ================= */
 
-  peer=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
+let peer=null;
+let localStream=null;
+let isCaller=false;
+
+const rtcConfig={ iceServers:[{urls:"stun:stun.l.google.com:19302"}] };
+
+/* START CALL */
+callBtn.onclick=async()=>{
+  isCaller=true;
+  callScreen.style.display="flex";
+  callStatus.textContent="📞 Calling...";
+
+  localStream=await navigator.mediaDevices.getUserMedia({audio:true});
+  peer=new RTCPeerConnection(rtcConfig);
+
   localStream.getTracks().forEach(t=>peer.addTrack(t,localStream));
-  peer.ontrack=e=>remoteVideo.srcObject=e.streams[0];
+
+  peer.onicecandidate=e=>{
+    if(e.candidate){
+      push(ref(db,`rooms/${room}/call/iceCaller`),e.candidate.toJSON());
+    }
+  };
 
   const offer=await peer.createOffer();
   await peer.setLocalDescription(offer);
   set(ref(db,`rooms/${room}/call/offer`),offer);
 };
 
-onValue(ref(db,`rooms/${room}/call/offer`),async s=>{
-  if(!s.exists()||peer) return;
-  if(confirm("📞 Incoming Call Accept?")){
-    callScreen.style.display="block";
-    localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:true});
-    localVideo.srcObject=localStream;
+/* RECEIVE CALL */
+onValue(ref(db,`rooms/${room}/call/offer`),async snap=>{
+  if(!snap.exists()||peer||isCaller) return;
 
-    peer=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
-    localStream.getTracks().forEach(t=>peer.addTrack(t,localStream));
-    peer.ontrack=e=>remoteVideo.srcObject=e.streams[0];
+  if(!confirm("📞 Incoming Audio Call – Accept?")) return;
 
-    await peer.setRemoteDescription(s.val());
-    const ans=await peer.createAnswer();
-    await peer.setLocalDescription(ans);
-    set(ref(db,`rooms/${room}/call/answer`),ans);
+  callScreen.style.display="flex";
+  callStatus.textContent="🔊 Call Connected";
+
+  localStream=await navigator.mediaDevices.getUserMedia({audio:true});
+  peer=new RTCPeerConnection(rtcConfig);
+  localStream.getTracks().forEach(t=>peer.addTrack(t,localStream));
+
+  peer.ontrack=e=>{
+    const audio=document.createElement("audio");
+    audio.srcObject=e.streams[0];
+    audio.autoplay=true;
+  };
+
+  peer.onicecandidate=e=>{
+    if(e.candidate){
+      push(ref(db,`rooms/${room}/call/iceReceiver`),e.candidate.toJSON());
+    }
+  };
+
+  await peer.setRemoteDescription(snap.val());
+  const ans=await peer.createAnswer();
+  await peer.setLocalDescription(ans);
+  set(ref(db,`rooms/${room}/call/answer`),ans);
+});
+
+/* ANSWER RECEIVE */
+onValue(ref(db,`rooms/${room}/call/answer`),async snap=>{
+  if(snap.exists()&&peer&&!peer.currentRemoteDescription){
+    await peer.setRemoteDescription(snap.val());
+    callStatus.textContent="🔊 Call Connected";
   }
 });
 
-onValue(ref(db,`rooms/${room}/call/answer`),async s=>{
-  if(s.exists()&&peer&&!peer.currentRemoteDescription){
-    await peer.setRemoteDescription(s.val());
-  }
+/* ICE EXCHANGE */
+onChildAdded(ref(db,`rooms/${room}/call/iceCaller`),snap=>{
+  if(peer&&!isCaller) peer.addIceCandidate(new RTCIceCandidate(snap.val()));
+});
+onChildAdded(ref(db,`rooms/${room}/call/iceReceiver`),snap=>{
+  if(peer&&isCaller) peer.addIceCandidate(new RTCIceCandidate(snap.val()));
 });
 
 /* END CALL */
 endCall.onclick=()=>{
   if(peer) peer.close();
   if(localStream) localStream.getTracks().forEach(t=>t.stop());
-  peer=null;
+  peer=null; localStream=null; isCaller=false;
   remove(ref(db,`rooms/${room}/call`));
   callScreen.style.display="none";
 };
