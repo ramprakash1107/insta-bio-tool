@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Private Friend Chat</title>
+<title>Private Friend Chat + Call</title>
 
 <style>
 :root{ --vh:1vh; }
@@ -20,17 +20,7 @@ body{
 }
 
 /* LOGIN */
-#loginBox{
-  padding:20px;
-}
-#loginBox h2{
-  margin-bottom:10px;
-}
-#loginBox p{
-  font-size:14px;
-  color:#aaa;
-  line-height:1.5;
-}
+#loginBox{ padding:20px; }
 #loginBox input,#loginBox button{
   width:100%;
   padding:14px;
@@ -39,117 +29,27 @@ body{
   border:none;
   font-size:16px;
 }
-#loginBox input{
-  background:#111;
-  color:#fff;
-}
-#loginBox button{
-  background:#1d9bf0;
-  color:#fff;
-  font-weight:bold;
-}
+#loginBox input{ background:#111;color:#fff; }
+#loginBox button{ background:#1d9bf0;color:#fff;font-weight:bold; }
 
-#credit{
-  margin:15px 0;
-  font-size:14px;
-  color:#ccc;
-}
-#credit a{
-  color:#1d9bf0;
-  text-decoration:none;
-}
+/* CHAT */
+#chatScreen{ display:none; flex:1; flex-direction:column; }
 
-/* CHAT SCREEN */
-#chatScreen{
-  display:none;
-  flex:1;
-  flex-direction:column;
-  min-height:0;
-}
-
-/* HEADER */
 header{
-  flex-shrink:0;
   padding:10px;
   border-bottom:1px solid #222;
-  background:#000;
   position:relative;
 }
-#roomName{font-weight:600;}
-#online{font-size:12px;color:#aaa;}
-
-/* CHAT AREA */
-#chat{
-  flex:1;
-  overflow-y:auto;
-  padding:10px;
-  display:flex;
-  flex-direction:column;
-}
-
-/* MESSAGE */
-.msg{
-  max-width:75%;
-  padding:10px 14px;
-  margin:6px 0;
-  border-radius:18px;
-  word-wrap:break-word;
-  font-size:15px;
-}
-.left{
-  align-self:flex-start;
-  background:#1e1e1e;
-  border-bottom-left-radius:4px;
-}
-.right{
-  align-self:flex-end;
-  background:#1d9bf0;
-  color:#fff;
-  border-bottom-right-radius:4px;
-}
-.seen{
-  font-size:11px;
-  color:#aaa;
-  text-align:right;
-  margin-right:8px;
-}
-
-/* TYPING */
-#typing{
-  font-size:12px;
-  color:#aaa;
-  padding-left:10px;
-  height:16px;
-}
-
-/* FOOTER */
-footer{
-  flex-shrink:0;
-  display:flex;
-  gap:8px;
-  padding:8px;
-  border-top:1px solid #222;
-  background:#000;
-}
-footer input{
-  flex:1;
-  padding:12px;
-  border-radius:20px;
+#callBtn{
+  position:absolute;
+  right:70px;
+  top:10px;
+  background:#0f9d58;
   border:none;
-  background:#1e1e1e;
   color:#fff;
-  font-size:14px;
+  padding:4px 8px;
+  border-radius:6px;
 }
-footer button{
-  padding:0 16px;
-  border-radius:50%;
-  border:none;
-  background:#1d9bf0;
-  color:#fff;
-  font-size:18px;
-}
-
-/* LEAVE */
 #leaveBtn{
   position:absolute;
   right:10px;
@@ -159,7 +59,78 @@ footer button{
   color:#fff;
   padding:4px 8px;
   border-radius:6px;
-  font-size:12px;
+}
+
+#chat{
+  flex:1;
+  overflow-y:auto;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+}
+.msg{
+  max-width:75%;
+  padding:10px 14px;
+  margin:6px 0;
+  border-radius:18px;
+}
+.left{ background:#1e1e1e; align-self:flex-start; }
+.right{ background:#1d9bf0; align-self:flex-end; }
+
+footer{
+  display:flex;
+  gap:8px;
+  padding:8px;
+  border-top:1px solid #222;
+}
+footer input{
+  flex:1;
+  padding:12px;
+  border-radius:20px;
+  border:none;
+  background:#1e1e1e;
+  color:#fff;
+}
+footer button{
+  padding:0 16px;
+  border-radius:50%;
+  border:none;
+  background:#1d9bf0;
+  color:#fff;
+}
+
+/* CALL SCREEN */
+#callScreen{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:#000;
+  z-index:9999;
+}
+#remoteVideo{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+#localVideo{
+  width:120px;
+  height:160px;
+  position:absolute;
+  right:10px;
+  bottom:90px;
+  border-radius:12px;
+  border:2px solid #fff;
+}
+#endCall{
+  position:absolute;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#e53935;
+  border:none;
+  color:#fff;
+  padding:12px 22px;
+  border-radius:30px;
 }
 </style>
 </head>
@@ -168,39 +139,21 @@ footer button{
 
 <!-- LOGIN -->
 <div id="loginBox">
-  <h2>🔐 Private Friend Chat</h2>
-
-  <p>
-    Apne doston ke sath <b>secure & private</b> chat karein.<br>
-    Koi login nahi — bas naam aur room code dalo aur chat shuru 🚀
-  </p>
-
-  <div id="credit">
-    👨‍💻 Developed by <b>RP Gupta</b><br>
-    📸 <a href="https://www.instagram.com/rp_gupta_07?igsh=MWI0Z3phMjlxOGN5Mw==" target="_blank">
-      Follow on Instagram @rp_gupta_07
-    </a>
-  </div>
-
+  <h2>🔐 Private Chat</h2>
   <input id="username" placeholder="Your name">
   <input id="roomcode" placeholder="Room code">
-  <button id="enterBtn">🚀 Enter Chat</button>
-
-  <p style="font-size:12px;color:#555;">
-    ⚠️ Same room code wale users ek hi chat me honge
-  </p>
+  <button id="enterBtn">Enter Chat</button>
 </div>
 
 <!-- CHAT -->
 <div id="chatScreen">
   <header>
-    <div id="roomName"></div>
-    <div id="online"></div>
+    <span id="roomName"></span>
+    <button id="callBtn">📞 Call</button>
     <button id="leaveBtn">Leave</button>
   </header>
 
   <div id="chat"></div>
-  <div id="typing"></div>
 
   <footer>
     <input id="msg" placeholder="Message...">
@@ -208,16 +161,21 @@ footer button{
   </footer>
 </div>
 
+<!-- CALL -->
+<div id="callScreen">
+  <video id="remoteVideo" autoplay playsinline></video>
+  <video id="localVideo" autoplay muted playsinline></video>
+  <button id="endCall">End Call</button>
+</div>
+
 <script type="module">
 function setVH(){
-  document.documentElement.style.setProperty('--vh', window.innerHeight*0.01+'px');
+  document.documentElement.style.setProperty('--vh',window.innerHeight*0.01+'px');
 }
-setVH();
-window.addEventListener('resize', setVH);
+setVH(); window.addEventListener('resize',setVH);
 
-/* FIREBASE */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, onValue, set, remove, update } 
+import { getDatabase, ref, push, onChildAdded, set, onValue, remove }
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -225,7 +183,7 @@ const firebaseConfig = {
   authDomain: "friendchat-43941.firebaseapp.com",
   databaseURL: "https://friendchat-43941-default-rtdb.firebaseio.com",
   projectId: "friendchat-43941",
-  storageBucket: "friendchat-43941.firebasestorage.app",
+  storageBucket: "friendchat-43941.appspot.com",
   messagingSenderId: "1026542245723",
   appId: "1:1026542245723:web:b892bfcc1d2358a018ac7e"
 };
@@ -233,106 +191,99 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* DOM */
 const loginBox = document.getElementById("loginBox");
 const chatScreen = document.getElementById("chatScreen");
 const chatDiv = document.getElementById("chat");
-const typingDiv = document.getElementById("typing");
-const roomName = document.getElementById("roomName");
-const online = document.getElementById("online");
+const msgInput = document.getElementById("msg");
 const enterBtn = document.getElementById("enterBtn");
 const sendBtn = document.getElementById("sendBtn");
 const leaveBtn = document.getElementById("leaveBtn");
-const usernameInput = document.getElementById("username");
-const roomInput = document.getElementById("roomcode");
-const msgInput = document.getElementById("msg");
+const callBtn = document.getElementById("callBtn");
 
-/* STATE */
-let user="", room="", chatRef, typingRef, userRef;
+const callScreen = document.getElementById("callScreen");
+const localVideo = document.getElementById("localVideo");
+const remoteVideo = document.getElementById("remoteVideo");
+const endCall = document.getElementById("endCall");
 
-/* ENTER CHAT */
-enterBtn.addEventListener("click", async ()=>{
-  user = usernameInput.value.trim();
-  room = roomInput.value.trim();
-  if(!user||!room){ alert("Name aur Room code likho"); return; }
+let user="",room="",chatRef;
+let peer,localStream;
 
-  chatDiv.innerHTML="";
-  typingDiv.textContent="";
-
-  const userRefCheck = ref(db,`rooms/${room}/users/${user}`);
-  let exists=false;
-  await onValue(userRefCheck,snap=>{
-    if(snap.exists()) exists=true;
-  },{onlyOnce:true});
-
-  if(exists){
-    alert("Ye username already use ho raha hai, dusra try karo");
-    return;
-  }
-
+/* ENTER */
+enterBtn.onclick=()=>{
+  user=username.value.trim();
+  room=roomcode.value.trim();
+  if(!user||!room) return alert("Name & Room required");
   loginBox.style.display="none";
   chatScreen.style.display="flex";
   roomName.textContent="Room: "+room;
+  chatRef=ref(db,`rooms/${room}/messages`);
 
-  chatRef = ref(db,`rooms/${room}/messages`);
-  typingRef = ref(db,`rooms/${room}/typing/${user}`);
-  userRef = ref(db,`rooms/${room}/users/${user}`);
-
-  set(userRef,true);
-  set(typingRef,false);
-
-  onValue(ref(db,`rooms/${room}/users`),snap=>{
-    online.textContent=(snap.exists()?Object.keys(snap.val()).length:0)+" online";
-  });
-
-  onValue(ref(db,`rooms/${room}/typing`),snap=>{
-    let t="";
-    snap.forEach(c=>{
-      if(c.key!==user && c.val()===true) t+=c.key+" typing...";
-    });
-    typingDiv.textContent=t;
-  });
-
-  onChildAdded(chatRef,snap=>{
-    const m=snap.val();
-    const div=document.createElement("div");
-    div.className="msg "+(m.user===user?"right":"left");
-    div.innerHTML=(m.user===user?m.text:"<b>"+m.user+"</b><br>"+m.text);
-    chatDiv.appendChild(div);
-
-    if(m.user!==user){
-      update(ref(db,`rooms/${room}/messages/${snap.key}`),{seen:true});
-    }
-
-    if(m.user===user){
-      const s=document.createElement("div");
-      s.className="seen";
-      s.textContent=m.seen?"Seen ✔✔":"Sent ✔";
-      chatDiv.appendChild(s);
-    }
+  onChildAdded(chatRef,s=>{
+    const m=s.val();
+    const d=document.createElement("div");
+    d.className="msg "+(m.user===user?"right":"left");
+    d.innerHTML=m.user===user?m.text:`<b>${m.user}</b><br>${m.text}`;
+    chatDiv.appendChild(d);
     chatDiv.scrollTop=chatDiv.scrollHeight;
   });
-});
+};
 
 /* SEND */
-sendBtn.addEventListener("click",()=>{
-  const text=msgInput.value.trim();
-  if(!text) return;
-  push(chatRef,{user,text,time:Date.now(),seen:false});
+sendBtn.onclick=()=>{
+  if(!msgInput.value.trim()) return;
+  push(chatRef,{user,text:msgInput.value});
   msgInput.value="";
-  set(typingRef,false);
+};
+
+/* CALL */
+callBtn.onclick=async()=>{
+  callScreen.style.display="block";
+  localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:true});
+  localVideo.srcObject=localStream;
+
+  peer=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
+  localStream.getTracks().forEach(t=>peer.addTrack(t,localStream));
+  peer.ontrack=e=>remoteVideo.srcObject=e.streams[0];
+
+  const offer=await peer.createOffer();
+  await peer.setLocalDescription(offer);
+  set(ref(db,`rooms/${room}/call/offer`),offer);
+};
+
+onValue(ref(db,`rooms/${room}/call/offer`),async s=>{
+  if(!s.exists()||peer) return;
+  if(confirm("📞 Incoming Call Accept?")){
+    callScreen.style.display="block";
+    localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:true});
+    localVideo.srcObject=localStream;
+
+    peer=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
+    localStream.getTracks().forEach(t=>peer.addTrack(t,localStream));
+    peer.ontrack=e=>remoteVideo.srcObject=e.streams[0];
+
+    await peer.setRemoteDescription(s.val());
+    const ans=await peer.createAnswer();
+    await peer.setLocalDescription(ans);
+    set(ref(db,`rooms/${room}/call/answer`),ans);
+  }
 });
 
-msgInput.addEventListener("input",()=>{
-  set(typingRef,msgInput.value.trim()!=="");
+onValue(ref(db,`rooms/${room}/call/answer`),async s=>{
+  if(s.exists()&&peer&&!peer.currentRemoteDescription){
+    await peer.setRemoteDescription(s.val());
+  }
 });
 
-/* LEAVE */
-leaveBtn.addEventListener("click",()=>{
-  remove(ref(db,`rooms/${room}`));
-  location.reload();
-});
+/* END CALL */
+endCall.onclick=()=>{
+  if(peer) peer.close();
+  if(localStream) localStream.getTracks().forEach(t=>t.stop());
+  peer=null;
+  remove(ref(db,`rooms/${room}/call`));
+  callScreen.style.display="none";
+};
+
+leaveBtn.onclick=()=>location.reload();
 </script>
-
 </body>
 </html>
