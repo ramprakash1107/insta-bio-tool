@@ -3,21 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Private Chat + Audio Call</title>
+<title>Private Friend Chat + Audio Call</title>
 
 <style>
+:root{ --vh:1vh; }
+*{ box-sizing:border-box; }
+
 body{
   margin:0;
   font-family:system-ui,-apple-system,BlinkMacSystemFont;
   background:#000;
   color:#fff;
-  height:100vh;
+  height:calc(var(--vh)*100);
   display:flex;
   flex-direction:column;
 }
 
 /* LOGIN */
 #loginBox{ padding:20px; }
+#loginBox h2{margin-bottom:5px;}
+#credit{font-size:12px;color:#777;margin-bottom:15px;}
 #loginBox input,#loginBox button{
   width:100%;
   padding:14px;
@@ -26,16 +31,32 @@ body{
   border:none;
   font-size:16px;
 }
-#loginBox input{ background:#111;color:#fff; }
-#loginBox button{ background:#1d9bf0;color:#fff;font-weight:bold; }
+#loginBox input{background:#111;color:#fff;}
+#loginBox button{
+  background:#1d9bf0;
+  color:#fff;
+  font-weight:bold;
+}
 
-/* CHAT */
-#chatScreen{ display:none; flex:1; flex-direction:column; }
+/* CHAT SCREEN */
+#chatScreen{
+  display:none;
+  flex:1;
+  flex-direction:column;
+  min-height:0;
+}
+
+/* HEADER */
 header{
+  flex-shrink:0;
   padding:10px;
   border-bottom:1px solid #222;
+  background:#000;
   position:relative;
 }
+#roomName{font-weight:600;}
+#online{font-size:12px;color:#aaa;}
+
 #callBtn{
   position:absolute;
   right:70px;
@@ -43,8 +64,9 @@ header{
   background:#0f9d58;
   border:none;
   color:#fff;
-  padding:6px 10px;
+  padding:4px 8px;
   border-radius:6px;
+  font-size:12px;
 }
 #leaveBtn{
   position:absolute;
@@ -53,9 +75,12 @@ header{
   background:#e53935;
   border:none;
   color:#fff;
-  padding:6px 10px;
+  padding:4px 8px;
   border-radius:6px;
+  font-size:12px;
 }
+
+/* CHAT AREA */
 #chat{
   flex:1;
   overflow-y:auto;
@@ -63,20 +88,50 @@ header{
   display:flex;
   flex-direction:column;
 }
+
+/* MESSAGE */
 .msg{
   max-width:75%;
   padding:10px 14px;
   margin:6px 0;
   border-radius:18px;
+  word-wrap:break-word;
+  font-size:15px;
 }
-.left{ background:#1e1e1e; align-self:flex-start; }
-.right{ background:#1d9bf0; align-self:flex-end; }
+.left{
+  align-self:flex-start;
+  background:#1e1e1e;
+  border-bottom-left-radius:4px;
+}
+.right{
+  align-self:flex-end;
+  background:#1d9bf0;
+  color:#fff;
+  border-bottom-right-radius:4px;
+}
+.seen{
+  font-size:11px;
+  color:#aaa;
+  text-align:right;
+  margin-right:8px;
+}
 
+/* TYPING */
+#typing{
+  font-size:12px;
+  color:#aaa;
+  padding-left:10px;
+  height:16px;
+}
+
+/* FOOTER */
 footer{
+  flex-shrink:0;
   display:flex;
   gap:8px;
   padding:8px;
   border-top:1px solid #222;
+  background:#000;
 }
 footer input{
   flex:1;
@@ -85,6 +140,7 @@ footer input{
   border:none;
   background:#1e1e1e;
   color:#fff;
+  font-size:14px;
 }
 footer button{
   padding:0 16px;
@@ -92,6 +148,7 @@ footer button{
   border:none;
   background:#1d9bf0;
   color:#fff;
+  font-size:18px;
 }
 
 /* AUDIO CALL SCREEN */
@@ -106,7 +163,7 @@ footer button{
   align-items:center;
   justify-content:center;
 }
-#callScreen h2{ margin-bottom:30px; }
+#callScreen h2{margin-bottom:30px;}
 #endCall{
   background:#e53935;
   border:none;
@@ -123,6 +180,7 @@ footer button{
 <!-- LOGIN -->
 <div id="loginBox">
   <h2>🔐 Private Chat</h2>
+  <div id="credit">Website by @rp_gupta_07</div>
   <input id="username" placeholder="Your name">
   <input id="roomcode" placeholder="Room code">
   <button id="enterBtn">Enter Chat</button>
@@ -131,12 +189,14 @@ footer button{
 <!-- CHAT -->
 <div id="chatScreen">
   <header>
-    <span id="roomName"></span>
+    <div id="roomName"></div>
+    <div id="online"></div>
     <button id="callBtn">📞 Call</button>
     <button id="leaveBtn">Leave</button>
   </header>
 
   <div id="chat"></div>
+  <div id="typing"></div>
 
   <footer>
     <input id="msg" placeholder="Message...">
@@ -151,11 +211,17 @@ footer button{
 </div>
 
 <script type="module">
+function setVH(){
+  document.documentElement.style.setProperty('--vh', window.innerHeight*0.01+'px');
+}
+setVH();
+window.addEventListener('resize', setVH);
+
+/* FIREBASE */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, set, onValue, remove }
+import { getDatabase, ref, push, onChildAdded, onValue, set, remove, update } 
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
 
-/* 🔥 FIREBASE CONFIG (aapka hi) */
 const firebaseConfig = {
   apiKey: "AIzaSyARuO_pN2vdYrVKYkKHHaNys7WI8HqM6I4",
   authDomain: "friendchat-43941.firebaseapp.com",
@@ -169,58 +235,90 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ELEMENTS */
+/* DOM */
 const loginBox = document.getElementById("loginBox");
 const chatScreen = document.getElementById("chatScreen");
 const chatDiv = document.getElementById("chat");
-const msgInput = document.getElementById("msg");
+const typingDiv = document.getElementById("typing");
+const roomName = document.getElementById("roomName");
+const online = document.getElementById("online");
 const enterBtn = document.getElementById("enterBtn");
 const sendBtn = document.getElementById("sendBtn");
 const leaveBtn = document.getElementById("leaveBtn");
 const callBtn = document.getElementById("callBtn");
+const usernameInput = document.getElementById("username");
+const roomInput = document.getElementById("roomcode");
+const msgInput = document.getElementById("msg");
 
 const callScreen = document.getElementById("callScreen");
 const callStatus = document.getElementById("callStatus");
 const endCall = document.getElementById("endCall");
 
-let user="", room="", chatRef;
+/* STATE */
+let user="", room="", chatRef, typingRef, userRef;
 
-/* CHAT ENTER */
-enterBtn.onclick=()=>{
-  user=username.value.trim();
-  room=roomcode.value.trim();
-  if(!user||!room) return alert("Name & Room required");
+/* AUDIO CALL STATE */
+let peer=null, localStream=null, isCaller=false;
+const rtcConfig={ iceServers:[{urls:"stun:stun.l.google.com:19302"}] };
+
+/* ENTER CHAT */
+enterBtn.addEventListener("click", async ()=>{
+  user = usernameInput.value.trim();
+  room = roomInput.value.trim();
+  if(!user||!room){ alert("Name aur Room code likho"); return; }
+
+  chatDiv.innerHTML="";
+  typingDiv.textContent="";
+
   loginBox.style.display="none";
   chatScreen.style.display="flex";
   roomName.textContent="Room: "+room;
-  chatRef=ref(db,`rooms/${room}/messages`);
 
-  onChildAdded(chatRef,s=>{
-    const m=s.val();
+  chatRef = ref(db,`rooms/${room}/messages`);
+  typingRef = ref(db,`rooms/${room}/typing/${user}`);
+  userRef = ref(db,`rooms/${room}/users/${user}`);
+
+  set(userRef,true);
+  set(typingRef,false);
+
+  /* ONLINE */
+  onValue(ref(db,`rooms/${room}/users`), snap=>{
+    online.textContent=(snap.exists()?Object.keys(snap.val()).length:0)+" online";
+  });
+
+  /* TYPING */
+  onValue(ref(db,`rooms/${room}/typing`), snap=>{
+    let t="";
+    snap.forEach(c=>{
+      if(c.key!==user && c.val()) t+=c.key+" typing...";
+    });
+    typingDiv.textContent=t;
+  });
+
+  /* MESSAGES */
+  onChildAdded(chatRef, snap=>{
+    const m=snap.val();
     const d=document.createElement("div");
     d.className="msg "+(m.user===user?"right":"left");
     d.innerHTML=m.user===user?m.text:`<b>${m.user}</b><br>${m.text}`;
     chatDiv.appendChild(d);
     chatDiv.scrollTop=chatDiv.scrollHeight;
   });
-};
+
+  setupCallListeners(); // 🔴 MOST IMPORTANT FIX
+});
 
 /* SEND MSG */
 sendBtn.onclick=()=>{
   if(!msgInput.value.trim()) return;
   push(chatRef,{user,text:msgInput.value});
   msgInput.value="";
+  set(typingRef,false);
 };
 
-/* ================= AUDIO CALL ================= */
+msgInput.oninput=()=>set(typingRef,msgInput.value.trim()!=="");
 
-let peer=null;
-let localStream=null;
-let isCaller=false;
-
-const rtcConfig={ iceServers:[{urls:"stun:stun.l.google.com:19302"}] };
-
-/* START CALL */
+/* AUDIO CALL */
 callBtn.onclick=async()=>{
   isCaller=true;
   callScreen.style.display="flex";
@@ -228,13 +326,10 @@ callBtn.onclick=async()=>{
 
   localStream=await navigator.mediaDevices.getUserMedia({audio:true});
   peer=new RTCPeerConnection(rtcConfig);
-
   localStream.getTracks().forEach(t=>peer.addTrack(t,localStream));
 
   peer.onicecandidate=e=>{
-    if(e.candidate){
-      push(ref(db,`rooms/${room}/call/iceCaller`),e.candidate.toJSON());
-    }
+    if(e.candidate) push(ref(db,`rooms/${room}/call/iceCaller`),e.candidate.toJSON());
   };
 
   const offer=await peer.createOffer();
@@ -242,52 +337,52 @@ callBtn.onclick=async()=>{
   set(ref(db,`rooms/${room}/call/offer`),offer);
 };
 
-/* RECEIVE CALL */
-onValue(ref(db,`rooms/${room}/call/offer`),async snap=>{
-  if(!snap.exists()||peer||isCaller) return;
+/* CALL LISTENERS */
+function setupCallListeners(){
 
-  if(!confirm("📞 Incoming Audio Call – Accept?")) return;
+  onValue(ref(db,`rooms/${room}/call/offer`), async snap=>{
+    if(!snap.exists()||peer||isCaller) return;
 
-  callScreen.style.display="flex";
-  callStatus.textContent="🔊 Call Connected";
+    if(!confirm("📞 Incoming Audio Call Accept?")) return;
 
-  localStream=await navigator.mediaDevices.getUserMedia({audio:true});
-  peer=new RTCPeerConnection(rtcConfig);
-  localStream.getTracks().forEach(t=>peer.addTrack(t,localStream));
-
-  peer.ontrack=e=>{
-    const audio=document.createElement("audio");
-    audio.srcObject=e.streams[0];
-    audio.autoplay=true;
-  };
-
-  peer.onicecandidate=e=>{
-    if(e.candidate){
-      push(ref(db,`rooms/${room}/call/iceReceiver`),e.candidate.toJSON());
-    }
-  };
-
-  await peer.setRemoteDescription(snap.val());
-  const ans=await peer.createAnswer();
-  await peer.setLocalDescription(ans);
-  set(ref(db,`rooms/${room}/call/answer`),ans);
-});
-
-/* ANSWER RECEIVE */
-onValue(ref(db,`rooms/${room}/call/answer`),async snap=>{
-  if(snap.exists()&&peer&&!peer.currentRemoteDescription){
-    await peer.setRemoteDescription(snap.val());
+    callScreen.style.display="flex";
     callStatus.textContent="🔊 Call Connected";
-  }
-});
 
-/* ICE EXCHANGE */
-onChildAdded(ref(db,`rooms/${room}/call/iceCaller`),snap=>{
-  if(peer&&!isCaller) peer.addIceCandidate(new RTCIceCandidate(snap.val()));
-});
-onChildAdded(ref(db,`rooms/${room}/call/iceReceiver`),snap=>{
-  if(peer&&isCaller) peer.addIceCandidate(new RTCIceCandidate(snap.val()));
-});
+    localStream=await navigator.mediaDevices.getUserMedia({audio:true});
+    peer=new RTCPeerConnection(rtcConfig);
+    localStream.getTracks().forEach(t=>peer.addTrack(t,localStream));
+
+    peer.ontrack=e=>{
+      const a=document.createElement("audio");
+      a.srcObject=e.streams[0];
+      a.autoplay=true;
+    };
+
+    peer.onicecandidate=e=>{
+      if(e.candidate) push(ref(db,`rooms/${room}/call/iceReceiver`),e.candidate.toJSON());
+    };
+
+    await peer.setRemoteDescription(snap.val());
+    const ans=await peer.createAnswer();
+    await peer.setLocalDescription(ans);
+    set(ref(db,`rooms/${room}/call/answer`),ans);
+  });
+
+  onValue(ref(db,`rooms/${room}/call/answer`), async snap=>{
+    if(snap.exists()&&peer&&!peer.currentRemoteDescription){
+      await peer.setRemoteDescription(snap.val());
+      callStatus.textContent="🔊 Call Connected";
+    }
+  });
+
+  onChildAdded(ref(db,`rooms/${room}/call/iceCaller`), snap=>{
+    if(peer&&!isCaller) peer.addIceCandidate(new RTCIceCandidate(snap.val()));
+  });
+
+  onChildAdded(ref(db,`rooms/${room}/call/iceReceiver`), snap=>{
+    if(peer&&isCaller) peer.addIceCandidate(new RTCIceCandidate(snap.val()));
+  });
+}
 
 /* END CALL */
 endCall.onclick=()=>{
