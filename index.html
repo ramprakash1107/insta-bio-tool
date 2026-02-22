@@ -2,148 +2,109 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Online Ludo 2 Player</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Real Ludo Board</title>
 
 <style>
 body{
   margin:0;
-  background:#111;
-  color:#fff;
-  font-family:system-ui;
-  text-align:center;
-}
-h2{margin:10px 0}
-#login input,#login button{
-  width:90%;
-  padding:14px;
-  margin:8px;
-  border-radius:12px;
-  border:none;
-  font-size:16px;
-}
-button{
-  background:#1d9bf0;
-  color:#fff;
-  font-weight:bold;
-}
-#board{
-  width:260px;
-  height:260px;
-  margin:20px auto;
-  display:grid;
-  grid-template:repeat(5,1fr)/repeat(5,1fr);
-}
-.cell{
-  border:1px solid #333;
+  background:#222;
   display:flex;
-  align-items:center;
   justify-content:center;
-  font-size:18px;
+  align-items:center;
+  height:100vh;
 }
-.red{color:#ff5252}
-.blue{color:#4fc3f7}
-#game{display:none}
+
+#board{
+  width:90vmin;
+  height:90vmin;
+  display:grid;
+  grid-template-columns:repeat(15,1fr);
+  grid-template-rows:repeat(15,1fr);
+  background:#fff;
+  border:4px solid #000;
+}
+
+/* COMMON CELL */
+.cell{
+  border:1px solid #999;
+}
+
+/* HOME AREAS */
+.red{background:#f44336;}
+.green{background:#4caf50;}
+.yellow{background:#ffeb3b;}
+.blue{background:#2196f3;}
+
+.white{background:#fff}
+
+/* CENTER */
+.center{
+  grid-column:7/10;
+  grid-row:7/10;
+  background:conic-gradient(
+    #f44336 0deg 90deg,
+    #4caf50 90deg 180deg,
+    #ffeb3b 180deg 270deg,
+    #2196f3 270deg 360deg
+  );
+}
+
+/* SAFE STAR */
+.safe{
+  background:#ddd;
+}
 </style>
 </head>
 
 <body>
 
-<div id="login">
-  <h2>🎲 Online Ludo</h2>
-  <input id="room" placeholder="Room ID">
-  <button onclick="createRoom()">Create Room</button>
-  <button onclick="joinRoom()">Join Room</button>
-</div>
+<div id="board"></div>
 
-<div id="game">
-  <h3 id="turn">Turn:</h3>
-  <div id="board"></div>
-  <button onclick="rollDice()">🎲 Roll Dice</button>
-  <h3 id="dice">-</h3>
-</div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getDatabase, ref, set, onValue, get } 
-from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
-
-/* 🔥 AAPKA FIREBASE CONFIG */
-const firebaseConfig = {
-  apiKey: "AIzaSyARuO_pN2vdYrVKYkKHHaNys7WI8HqM6I4",
-  authDomain: "friendchat-43941.firebaseapp.com",
-  databaseURL: "https://friendchat-43941-default-rtdb.firebaseio.com",
-  projectId: "friendchat-43941",
-  storageBucket: "friendchat-43941.firebasestorage.app",
-  messagingSenderId: "1026542245723",
-  appId: "1:1026542245723:web:b892bfcc1d2358a018ac7e"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-let roomId="", player="";
-let pos={red:0,blue:0};
-
-/* BOARD */
+<script>
 const board=document.getElementById("board");
-for(let i=0;i<25;i++){
+
+/*
+  15x15 Ludo Layout Map
+  r = red home
+  g = green home
+  y = yellow home
+  b = blue home
+  w = white
+  s = safe/path
+  c = center
+*/
+
+const map=[
+"rrrrrrwwwwwwggggg",
+"rrrrrrwwwwwwggggg",
+"rrrrrrwwwwwwggggg",
+"rrrrrrwwwwwwggggg",
+"rrrrrrwwwwwwggggg",
+"rrrrrrswswswggggg",
+"wwwwwswwwwwswwwww",
+"swswswswcwswswsws",
+"wwwwwswwwwwswwwww",
+"yyyyywswswswwbbbbb",
+"yyyyywwwwwwwwbbbbb",
+"yyyyywwwwwwwwbbbbb",
+"yyyyywwwwwwwwbbbbb",
+"yyyyywwwwwwwwbbbbb",
+"yyyyywwwwwwwwbbbbb"
+];
+
+map.join("").split("").forEach(ch=>{
   const d=document.createElement("div");
-  d.className="cell";
-  d.id="c"+i;
+  d.classList.add("cell");
+  if(ch==="r") d.classList.add("red");
+  if(ch==="g") d.classList.add("green");
+  if(ch==="y") d.classList.add("yellow");
+  if(ch==="b") d.classList.add("blue");
+  if(ch==="s") d.classList.add("safe");
+  if(ch==="c") d.classList.add("center");
   board.appendChild(d);
-}
-
-window.createRoom=async()=>{
-  roomId=document.getElementById("room").value.trim();
-  if(!roomId) return alert("Room ID likho");
-  player="red";
-  await set(ref(db,"ludo/"+roomId),{
-    turn:"red",
-    pos:{red:0,blue:0}
-  });
-  start();
-}
-
-window.joinRoom=()=>{
-  roomId=document.getElementById("room").value.trim();
-  if(!roomId) return alert("Room ID likho");
-  player="blue";
-  start();
-}
-
-function start(){
-  document.getElementById("login").style.display="none";
-  document.getElementById("game").style.display="block";
-
-  onValue(ref(db,"ludo/"+roomId),snap=>{
-    if(!snap.exists()) return;
-    const data=snap.val();
-    pos=data.pos;
-    document.getElementById("turn").innerText="Turn: "+data.turn;
-    draw();
-  });
-}
-
-window.rollDice=async()=>{
-  const snap=await get(ref(db,"ludo/"+roomId));
-  const data=snap.val();
-  if(data.turn!==player){
-    alert("Wait for your turn");
-    return;
-  }
-  const d=Math.floor(Math.random()*6)+1;
-  document.getElementById("dice").innerText=d;
-  data.pos[player]+=d;
-  data.turn=player==="red"?"blue":"red";
-  await set(ref(db,"ludo/"+roomId),data);
-}
-
-function draw(){
-  document.querySelectorAll(".cell").forEach(c=>c.innerHTML="");
-  if(pos.red<25) document.getElementById("c"+pos.red).innerHTML="<b class='red'>R</b>";
-  if(pos.blue<25) document.getElementById("c"+pos.blue).innerHTML="<b class='blue'>B</b>";
-}
+});
 </script>
+
 </body>
 </html>
