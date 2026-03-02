@@ -1,331 +1,227 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Elite Tank Arena Pro | @rp_gupta_07</title>
+    <title>Cyber Strike: Phantom | @rp_gupta_07</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <style>
-        :root {
-            --primary: #00f2ff;
-            --accent: #ff0055;
-            --bg: #0a0a0c;
-        }
-
-        body, html {
-            margin: 0; padding: 0; height: 100%; width: 100%;
-            background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif;
-            overflow: hidden; touch-action: none;
-        }
-
-        #ui-layer { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
-        #menu { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9); 
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 100; pointer-events: all;
-        }
-
-        canvas { display: block; background: #111; }
-
-        .btn {
-            padding: 15px 40px; border: none; border-radius: 50px;
-            font-weight: 900; cursor: pointer; margin: 10px;
-            transition: 0.3s; text-transform: uppercase; pointer-events: all;
-        }
-        .btn-primary { background: var(--primary); color: #000; box-shadow: 0 0 20px rgba(0,242,255,0.4); }
+        :root { --p: #00ffcc; --s: #ff00ff; --bg: #050508; }
+        body, html { margin: 0; padding: 0; overflow: hidden; background: var(--bg); font-family: 'Inter', sans-serif; color: #fff; }
         
-        .hud {
-            position: absolute; top: 20px; left: 20px;
-            background: rgba(0,0,0,0.5); padding: 10px 20px;
-            border-left: 4px solid var(--primary);
+        #ui { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
+        #overlay { 
+            position: fixed; inset: 0; background: radial-gradient(circle, rgba(10,10,20,0.8) 0%, #000 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; pointer-events: all;
         }
 
-        #killFeed {
-            position: absolute; top: 20px; right: 20px; text-align: right;
-            font-size: 12px; color: var(--primary);
+        .input-box {
+            background: rgba(255,255,255,0.05); border: 2px solid var(--p);
+            padding: 15px; border-radius: 12px; color: #fff; width: 280px; text-align: center;
+            font-size: 18px; margin-bottom: 15px; outline: none; transition: 0.3s;
         }
+        .input-box:focus { box-shadow: 0 0 20px var(--p); }
 
-        .controls-hint {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            font-size: 10px; color: #555;
+        .btn-play {
+            padding: 15px 60px; background: var(--p); color: #000; border: none;
+            border-radius: 12px; font-weight: 900; font-size: 20px; cursor: pointer;
+            text-transform: uppercase; transition: 0.3s;
         }
+        .btn-play:hover { transform: scale(1.05); box-shadow: 0 0 30px var(--p); }
 
-        input {
-            background: rgba(255,255,255,0.1); border: 1px solid var(--primary);
-            padding: 12px; border-radius: 10px; color: #fff; text-align: center;
-            margin-bottom: 20px; outline: none; width: 250px;
-        }
+        #stats { position: absolute; bottom: 30px; left: 30px; }
+        .bar-outer { width: 250px; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden; }
+        #hp-bar { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0055, #ff7700); transition: 0.3s; }
+        
+        #killfeed { position: absolute; top: 30px; right: 30px; text-align: right; color: var(--p); font-size: 14px; }
+        canvas { display: block; cursor: crosshair; }
     </style>
 </head>
 <body>
 
-<div id="menu">
-    <h1 style="font-size: 40px; margin: 0; letter-spacing: 5px;">TANK <span style="color:var(--primary)">ARENA</span></h1>
-    <p style="color: #666; font-size: 12px; margin-bottom: 30px;">PRO MULTIPLAYER BY @RP_GUPTA_07</p>
-    
-    <input type="text" id="playerName" placeholder="ENTER YOUR NAME" maxlength="10">
-    <input type="text" id="roomCode" placeholder="ROOM CODE (JOIN/CREATE)">
-    
-    <button class="btn btn-primary" onclick="startGame()">ENTER BATTLE</button>
+<div id="overlay">
+    <h1 style="font-size: 50px; margin: 0; font-style: italic; letter-spacing: -2px;">CYBER <span style="color:var(--p)">STRIKE</span></h1>
+    <p style="opacity: 0.5; margin-bottom: 40px;">NEXT-GEN MULTIPLAYER BY @RP_GUPTA_07</p>
+    <input type="text" id="nick" class="input-box" placeholder="PLAYER NICKNAME">
+    <input type="text" id="room" class="input-box" placeholder="ARENA CODE">
+    <button class="btn-play" onclick="init()">JOIN BATTLE</button>
 </div>
 
-<div id="ui-layer">
-    <div class="hud">
-        <div id="myHp">HP: 100</div>
-        <div id="myScore" style="font-size: 24px; font-weight: 900;">KILLS: 0</div>
+<div id="ui">
+    <div id="stats">
+        <div style="font-size: 12px; margin-bottom: 5px; letter-spacing: 2px;">SYSTEM INTEGRITY</div>
+        <div class="bar-outer"><div id="hp-bar"></div></div>
+        <h2 id="kills">KILLS: 0</h2>
     </div>
-    <div id="killFeed"></div>
-    <div class="controls-hint">WASD / ARROWS TO MOVE • SPACE / CLICK TO FIRE</div>
+    <div id="killfeed"></div>
 </div>
 
-<canvas id="gameCanvas"></canvas>
+<canvas id="game"></canvas>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-// --- FIREBASE CONFIGURATION ---
 const firebaseConfig = {
     apiKey: "AIzaSyARuO_pN2vdYrVKYkKHHaNys7WI8HqM6I4",
-    authDomain: "friendchat-43941.firebaseapp.com",
     databaseURL: "https://friendchat-43941-default-rtdb.firebaseio.com",
     projectId: "friendchat-43941",
-    storageBucket: "friendchat-43941.firebasestorage.app",
-    messagingSenderId: "1026542245723",
-    appId: "1:1026542245723:web:b892bfcc1d2358a018ac7e"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// --- GAME VARIABLES ---
-const canvas = document.getElementById('gameCanvas');
+const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
-let world = { width: 2000, height: 2000 };
-let player = {
-    id: Math.random().toString(36).substr(2, 9),
-    name: "Guest",
-    x: 100, y: 100, angle: 0, hp: 100, kills: 0, color: `hsl(${Math.random()*360}, 70%, 50%)`
-};
-let others = {};
-let bullets = [];
+let w, h, player, players = {}, bullets = [], particles = [], roomID, active = false;
+let mouse = { x: 0, y: 0 };
 let keys = {};
-let room = "lobby";
-let gameActive = false;
 
-// --- INITIALIZATION ---
-function startGame() {
-    const nameInput = document.getElementById('playerName').value.trim();
-    const roomInput = document.getElementById('roomCode').value.trim();
+function init() {
+    const nick = document.getElementById('nick').value || "Unit_"+Math.floor(Math.random()*99);
+    roomID = document.getElementById('room').value || "Global";
+    document.getElementById('overlay').style.display = 'none';
     
-    if(!nameInput || !roomInput) return alert("Fill Name and Room Code!");
-    
-    player.name = nameInput;
-    room = roomInput;
-    
-    document.getElementById('menu').style.display = 'none';
-    gameActive = true;
-    
-    // Initial spawn
-    player.x = Math.random() * 800 + 100;
-    player.y = Math.random() * 800 + 100;
-
-    initNetworking();
-    requestAnimationFrame(gameLoop);
-}
-
-function initNetworking() {
-    const playerRef = db.ref(`tanks/${room}/players/${player.id}`);
-    const bulletRef = db.ref(`tanks/${room}/bullets`);
-
-    // Update my data
-    setInterval(() => {
-        if(gameActive) {
-            playerRef.set({
-                x: player.x, y: player.y, angle: player.angle,
-                hp: player.hp, name: player.name, color: player.color, kills: player.kills
-            });
-        }
-    }, 50);
-
-    // Remove on disconnect
-    playerRef.onDisconnect().remove();
-
-    // Listen for other players
-    db.ref(`tanks/${room}/players`).on('value', snap => {
-        const data = snap.val() || {};
-        others = data;
-        if(data[player.id]) {
-            player.hp = data[player.id].hp;
-            player.kills = data[player.id].kills;
-        }
-    });
-
-    // Listen for bullets
-    bulletRef.on('child_added', snap => {
-        const b = snap.val();
-        if(b.ownerId !== player.id) {
-            bullets.push(b);
-        }
-    });
-}
-
-// --- CONTROLS ---
-window.addEventListener('keydown', e => keys[e.code] = true);
-window.addEventListener('keyup', e => keys[e.code] = false);
-window.addEventListener('mousedown', fireBullet);
-
-function fireBullet() {
-    if(!gameActive || player.hp <= 0) return;
-    
-    const bId = Math.random().toString(36).substr(2, 5);
-    const bData = {
-        id: bId,
-        ownerId: player.id,
-        x: player.x + Math.cos(player.angle) * 30,
-        y: player.y + Math.sin(player.angle) * 30,
-        vx: Math.cos(player.angle) * 10,
-        vy: Math.sin(player.angle) * 10,
-        dist: 0
+    player = {
+        id: Math.random().toString(36).substr(2, 7),
+        name: nick,
+        x: Math.random() * 2000,
+        y: Math.random() * 2000,
+        angle: 0,
+        hp: 100,
+        kills: 0,
+        color: `hsl(${Math.random()*360}, 100%, 60%)`,
+        lastFire: 0
     };
+
+    active = true;
+    window.addEventListener('keydown', e => keys[e.code] = true);
+    window.addEventListener('keyup', e => keys[e.code] = false);
+    window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    window.addEventListener('mousedown', fire);
+
+    // Network Sync
+    const pRef = db.ref(`cyber/${roomID}/players/${player.id}`);
+    pRef.onDisconnect().remove();
     
-    db.ref(`tanks/${room}/bullets/${bId}`).set(bData);
-    // Remove bullet after 2 seconds from DB
-    setTimeout(() => db.ref(`tanks/${room}/bullets/${bId}`).remove(), 2000);
-    
-    // Client-side prediction
-    bullets.push(bData);
+    db.ref(`cyber/${roomID}/players`).on('value', s => { players = s.val() || {}; });
+    db.ref(`cyber/${roomID}/bullets`).on('child_added', s => {
+        const b = s.val();
+        if(b.owner !== player.id) bullets.push(b);
+    });
+
+    setInterval(() => {
+        if(active && player.hp > 0) pRef.set(player);
+    }, 40);
+
+    resize();
+    loop();
 }
 
-// --- GAME LOGIC ---
+function fire() {
+    if(!active || player.hp <= 0 || Date.now() - player.lastFire < 150) return;
+    const bId = Math.random().toString(36).substr(2, 5);
+    const b = {
+        id: bId, owner: player.id,
+        x: player.x, y: player.y,
+        vx: Math.cos(player.angle) * 15,
+        vy: Math.sin(player.angle) * 15,
+        life: 100
+    };
+    db.ref(`cyber/${roomID}/bullets/${bId}`).set(b);
+    setTimeout(() => db.ref(`cyber/${roomID}/bullets/${bId}`).remove(), 1500);
+    bullets.push(b);
+    player.lastFire = Date.now();
+}
+
 function update() {
-    if(player.hp <= 0) {
-        player.x = -1000; // Move away while dead
-        setTimeout(() => { 
-            player.hp = 100; 
-            player.x = Math.random() * 800; 
-            player.y = Math.random() * 800;
-            db.ref(`tanks/${room}/players/${player.id}`).update({hp: 100, x: player.x, y: player.y});
-        }, 3000);
-        return;
-    }
+    if(player.hp <= 0) return;
 
-    if(keys['KeyW'] || keys['ArrowUp']) {
-        player.x += Math.cos(player.angle) * 4;
-        player.y += Math.sin(player.angle) * 4;
-    }
-    if(keys['KeyS'] || keys['ArrowDown']) {
-        player.x -= Math.cos(player.angle) * 2;
-        player.y -= Math.sin(player.angle) * 2;
-    }
-    if(keys['KeyA'] || keys['ArrowLeft']) player.angle -= 0.05;
-    if(keys['KeyD'] || keys['ArrowRight']) player.angle += 0.05;
+    if(keys['KeyW']) player.y -= 5;
+    if(keys['KeyS']) player.y += 5;
+    if(keys['KeyA']) player.x -= 5;
+    if(keys['KeyD']) player.x += 5;
 
-    // Update Bullets & Collision
-    bullets.forEach((b, index) => {
-        b.x += b.vx;
-        b.y += b.vy;
-        b.dist += 1;
+    // Smooth Look
+    const dx = mouse.x - w/2;
+    const dy = mouse.y - h/2;
+    player.angle = Math.atan2(dy, dx);
 
-        // Check if bullet hits ME
-        if(b.ownerId !== player.id) {
-            let dx = b.x - player.x;
-            let dy = b.y - player.y;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            if(dist < 25) {
+    // Bullet Logic
+    bullets.forEach((b, i) => {
+        b.x += b.vx; b.y += b.vy; b.life--;
+        if(b.life <= 0) bullets.splice(i, 1);
+
+        // Check Hit on ME
+        if(b.owner !== player.id) {
+            const dist = Math.hypot(b.x - player.x, b.y - player.y);
+            if(dist < 20) {
                 player.hp -= 10;
-                bullets.splice(index, 1);
-                db.ref(`tanks/${room}/players/${player.id}`).update({hp: player.hp});
-                
+                bullets.splice(i, 1);
                 if(player.hp <= 0) {
-                   db.ref(`tanks/${room}/players/${b.ownerId}/kills`).transaction(c => (c || 0) + 1);
+                    db.ref(`cyber/${roomID}/players/${b.owner}/kills`).transaction(k => (k||0)+1);
+                    setTimeout(() => location.reload(), 3000);
                 }
             }
         }
-        if(b.dist > 100) bullets.splice(index, 1);
     });
 
-    // UI Update
-    document.getElementById('myHp').innerText = `HP: ${player.hp}`;
-    document.getElementById('myScore').innerText = `KILLS: ${player.kills}`;
+    document.getElementById('hp-bar').style.width = player.hp + "%";
+    document.getElementById('kills').innerText = "KILLS: " + (players[player.id]?.kills || 0);
 }
 
 function draw() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#050508';
+    ctx.fillRect(0,0,w,h);
 
-    // Draw Grid (World)
-    ctx.strokeStyle = "#222";
-    for(let i=0; i<world.width; i+=50) {
-        ctx.beginPath(); ctx.moveTo(i - player.x + canvas.width/2, 0); ctx.lineTo(i - player.x + canvas.width/2, canvas.height); ctx.stroke();
-    }
-    for(let i=0; i<world.height; i+=50) {
-        ctx.beginPath(); ctx.moveTo(0, i - player.y + canvas.height/2); ctx.lineTo(canvas.width, i - player.y + canvas.height/2); ctx.stroke();
+    const camX = w/2 - player.x;
+    const camY = h/2 - player.y;
+
+    // Grid
+    ctx.strokeStyle = '#11111a';
+    for(let i=0; i<4000; i+=100) {
+        ctx.beginPath(); ctx.moveTo(i + camX, camY); ctx.lineTo(i + camX, 2000 + camY); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(camX, i + camY); ctx.lineTo(2000 + camX, i + camY); ctx.stroke();
     }
 
     // Draw Others
-    Object.keys(others).forEach(id => {
-        const p = others[id];
-        if(id === player.id) return;
-        drawTank(p.x, p.y, p.angle, p.color, p.name, p.hp);
+    Object.values(players).forEach(p => {
+        if(p.id === player.id) return;
+        drawUnit(p.x + camX, p.y + camY, p.angle, p.color, p.name, p.hp);
     });
 
     // Draw Me
-    if(player.hp > 0) {
-        drawTank(player.x, player.y, player.angle, player.color, player.name, player.hp);
-    } else {
-        ctx.fillStyle = "white";
-        ctx.fillText("RESPAWNING...", canvas.width/2 - 50, canvas.height/2);
-    }
+    if(player.hp > 0) drawUnit(w/2, h/2, player.angle, player.color, player.name, player.hp);
 
-    // Draw Bullets
+    // Bullets
     bullets.forEach(b => {
-        ctx.fillStyle = varColor('--primary');
-        ctx.beginPath();
-        ctx.arc(b.x - player.x + canvas.width/2, b.y - player.y + canvas.height/2, 4, 0, Math.PI*2);
-        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.shadowBlur = 10; ctx.shadowColor = '#0ff';
+        ctx.beginPath(); ctx.arc(b.x + camX, b.y + camY, 3, 0, 7); ctx.fill();
+        ctx.shadowBlur = 0;
     });
 }
 
-function drawTank(x, y, angle, color, name, hp) {
-    const screenX = x - player.x + canvas.width/2;
-    const screenY = y - player.y + canvas.height/2;
-
+function drawUnit(x, y, a, c, n, hp) {
     ctx.save();
-    ctx.translate(screenX, screenY);
+    ctx.translate(x, y);
     
-    // Name & HP Bar
-    ctx.fillStyle = "white";
-    ctx.textAlign = "center";
-    ctx.font = "12px Arial";
-    ctx.fillText(name, 0, -35);
+    // UI
+    ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.font = "10px Monospace";
+    ctx.fillText(n.toUpperCase(), 0, -30);
     
-    ctx.fillStyle = "#333";
-    ctx.fillRect(-20, -30, 40, 5);
-    ctx.fillStyle = hp > 30 ? "#00ff88" : "#ff0055";
-    ctx.fillRect(-20, -30, (hp/100)*40, 5);
-
-    // Tank Body
-    ctx.rotate(angle);
-    ctx.fillStyle = color;
-    ctx.fillRect(-20, -15, 40, 30); // Body
-    ctx.fillStyle = "rgba(0,0,0,0.3)";
-    ctx.fillRect(5, -5, 25, 10); // Barrel
+    // Unit Body
+    ctx.rotate(a);
+    ctx.shadowBlur = 15; ctx.shadowColor = c;
+    ctx.fillStyle = c;
+    ctx.beginPath(); ctx.moveTo(15, 0); ctx.lineTo(-10, -10); ctx.lineTo(-10, 10); ctx.closePath(); ctx.fill();
+    
+    // Direction Light
+    ctx.fillStyle = "#fff"; ctx.fillRect(5, -2, 10, 4);
     ctx.restore();
 }
 
-function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name); }
-
-function gameLoop() {
-    update();
-    draw();
-    if(gameActive) requestAnimationFrame(gameLoop);
-}
-
-// Resizing
-window.onresize = () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-};
+function loop() { update(); draw(); requestAnimationFrame(loop); }
+function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+window.onresize = resize;
 </script>
 </body>
 </html>
