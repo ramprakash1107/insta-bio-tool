@@ -2,44 +2,57 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<title>@rp_gupta_07 | Elite Arena Pro</title>
+<title>Elite Arena Pro | @rp_gupta_07</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
 <style>
 :root { 
-    --primary: #00f2ff; --secondary: #7000ff; --bg: #050505; 
-    --card: rgba(255, 255, 255, 0.05); --win: #00ff88; 
-    --me: linear-gradient(135deg, #0084ff, #00c6ff); --other: #2a2a2a; --accent: #ff0055;
+    --primary: #00f2ff; --secondary: #7000ff; --bg: #030303; 
+    --card: rgba(255, 255, 255, 0.03); --win: #00ff88; 
+    --me: linear-gradient(135deg, #0084ff, #00c6ff); --other: #1a1a1a; --accent: #ff0055;
 }
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; position: fixed; }
-.bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #050505 100%); z-index: -1; }
-.container { display: flex; flex-direction: column; height: 100%; max-width: 450px; margin: auto; position: relative; }
-.screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.5s; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.hero-title { font-size: 42px; font-weight: 900; margin: 0; text-align: center; background: linear-gradient(#fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--card); color: #fff; margin-bottom: 12px; outline: none; }
-.grid-select { display: flex; gap: 8px; margin: 10px 0; width: 100%; }
-.grid-btn { flex: 1; padding: 12px; background: var(--card); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 10px; cursor: pointer; font-weight: bold; }
-.grid-btn.active { background: var(--primary); color: #000; }
-.btn-main { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-bottom: 10px; }
-.btn-primary { background: var(--primary); color: #000; box-shadow: 0 0 20px rgba(0,242,255,0.4); }
-#board { display: grid; gap: 8px; margin: 15px auto; }
-.cell { background: var(--card); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: 0.2s; }
-.cell.winner-cell { background: var(--win) !important; color: #000 !important; box-shadow: 0 0 30px var(--win); transform: scale(1.1); animation: winPulse 0.6s infinite alternate; }
-@keyframes winPulse { from { transform: scale(1.1); } to { transform: scale(1.05); } }
-@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-.shake { animation: shake 0.2s ease-in-out 2; border: 1px solid var(--accent) !important; }
-.active-turn { box-shadow: 0 0 15px var(--primary); border: 1.5px solid var(--primary) !important; transform: scale(1.02); }
-#winnerOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
-.scoreboard { display: flex; justify-content: center; gap: 20px; margin-bottom: 10px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 15px; width: 100%; }
-.score-box { text-align: center; padding: 5px 15px; border-radius: 10px; border: 1px solid transparent; flex: 1; }
-.chat-section { height: 120px; background: #000; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; }
-#messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 5px; font-size: 11px; }
-.msg { max-width: 80%; padding: 6px 12px; border-radius: 12px; }
-.me { align-self: flex-end; background: var(--me); }
-.other { align-self: flex-start; background: var(--other); }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: var(--bg); color: #fff; font-family: 'Segoe UI', system-ui; overflow: hidden; }
+
+/* 1. Dynamic Background */
+.bg-glow { position: fixed; inset: 0; background: radial-gradient(circle at center, #111 0%, #000 100%); z-index: -1; }
+.bg-glow::after { content: ''; position: absolute; width: 200%; height: 200%; background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); opacity: 0.1; }
+
+.container { display: flex; flex-direction: column; height: 100%; max-width: 450px; margin: auto; border: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.5); backdrop-filter: blur(20px); }
+
+/* 2. Professional UI elements */
+.hero-title { font-size: 45px; font-weight: 900; text-align: center; letter-spacing: -2px; line-height: 0.8; margin-bottom: 20px; text-transform: uppercase; font-style: italic; }
+.hero-title span { display: block; font-size: 20px; color: var(--primary); letter-spacing: 5px; font-style: normal; margin-top: 5px; }
+
+input { width: 100%; padding: 15px; border-radius: 15px; border: 2px solid #222; background: #111; color: #fff; font-size: 16px; transition: 0.3s; }
+input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0,242,255,0.2); }
+
+.grid-select { display: flex; gap: 10px; margin: 15px 0; width: 100%; }
+.grid-btn { flex: 1; padding: 15px; background: #111; border: 2px solid #222; color: #fff; border-radius: 12px; cursor: pointer; font-weight: 900; transition: 0.3s; }
+.grid-btn.active { border-color: var(--primary); background: rgba(0,242,255,0.1); color: var(--primary); }
+
+.btn-main { width: 100%; padding: 18px; border-radius: 15px; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.2s; position: relative; overflow: hidden; }
+.btn-primary { background: var(--primary); color: #000; }
+.btn-primary:active { transform: scale(0.95); }
+
+/* 3. Game Board Enhancements */
+#board { display: grid; gap: 10px; margin: 20px auto; padding: 10px; border-radius: 20px; background: rgba(255,255,255,0.02); }
+.cell { background: #0a0a0a; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; border: 2px solid #1a1a1a; transition: 0.2s; position: relative; }
+.cell:hover { background: #151515; }
+.cell.winner-cell { background: var(--win) !important; color: #000 !important; box-shadow: 0 0 40px var(--win); z-index: 5; }
+
+/* 4. Scoreboard Glow */
+.score-box { text-align: center; padding: 10px; border-radius: 15px; flex: 1; border: 2px solid #1a1a1a; transition: 0.5s; }
+.active-turn { border-color: var(--primary); box-shadow: 0 0 20px rgba(0,242,255,0.2); background: rgba(0,242,255,0.05); }
+
+/* 5. Chat UI */
+.chat-section { height: 150px; background: #000; border-top: 1px solid #222; display: flex; flex-direction: column; }
+#messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.msg { max-width: 85%; padding: 8px 15px; border-radius: 18px; font-size: 13px; font-weight: 500; }
+.me { align-self: flex-end; background: var(--me); color: #fff; }
+.other { align-self: flex-start; background: #222; }
+
 .hidden { display: none !important; }
 </style>
 </head>
@@ -47,42 +60,49 @@ input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(
 
 <div class="bg-glow"></div>
 
-<div id="winnerOverlay">
-    <h1 id="winnerName" style="font-size: 50px; color: var(--win); margin-bottom: 20px;">WINNER</h1>
-    <button onclick="restartMatch()" class="btn-main btn-primary" style="width: 200px;">NEXT ROUND</button>
+<div id="winnerOverlay" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; display:none; flex-direction:column; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
+    <h2 style="letter-spacing:5px; color:#555;">MATCH ENDED</h2>
+    <h1 id="winnerName" style="font-size: 60px; color: var(--win); text-shadow: 0 0 30px var(--win); margin: 10px 0;">YOU WIN</h1>
+    <button onclick="restartMatch()" class="btn-main btn-primary" style="width: 250px;">REMATCH</button>
 </div>
 
 <div class="container">
     <div id="loginScreen" class="screen">
-        <h1 class="hero-title">ARENA PRO</h1>
-        <p style="color:#555; font-size:10px; margin-bottom:20px;">BY @RP_GUPTA_07</p>
-        <input id="userName" placeholder="NAME">
+        <h1 class="hero-title">ELITE<span>ARENA PRO</span></h1>
+        <p style="color:#444; font-size:12px; margin-bottom:30px; font-weight:bold;">CREATED BY @RP_GUPTA_07</p>
+        
+        <input id="userName" placeholder="ENTER YOUR NAME">
+        
         <div class="grid-select">
-            <button class="grid-btn active" id="g3" onclick="setGrid(3)">3X3</button>
-            <button class="grid-btn" id="g5" onclick="setGrid(5)">5X5</button>
+            <button class="grid-btn active" id="g3" onclick="setGrid(3)">3 X 3</button>
+            <button class="grid-btn" id="g5" onclick="setGrid(5)">5 X 5</button>
         </div>
-        <button class="btn-main btn-primary" onclick="createRoom()">ONLINE ARENA</button>
-        <button class="btn-main" style="background:var(--secondary); color:#fff;" onclick="startRobot()">SOLO VS ROBOT</button>
-        <input id="joinCode" placeholder="ARENA CODE" style="margin-top:10px;">
-        <button class="btn-main" style="border:1px solid #333; background:none; color:#fff;" onclick="joinRoom()">JOIN SQUAD</button>
+
+        <button class="btn-main btn-primary" onclick="createRoom()">CREATE ONLINE ARENA</button>
+        <button class="btn-main" style="background:#1a1a1a; color:var(--secondary); border:1px solid var(--secondary); margin-top:5px;" onclick="startRobot()">SOLO VS AI (EXPERT)</button>
+        
+        <div style="display:flex; gap:10px; margin-top:20px; width:100%;">
+            <input id="joinCode" placeholder="ARENA CODE" style="flex:1;">
+            <button onclick="joinRoom()" style="background:#fff; color:#000; border:none; padding:0 20px; border-radius:15px; font-weight:900;">JOIN</button>
+        </div>
     </div>
 
     <div id="gameScreen" class="hidden" style="display:flex; flex-direction:column; height: 100%;">
-        <div style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
-            <button onclick="location.reload()" style="background:none; border:1px solid #444; color:#fff; cursor:pointer; padding:5px 10px; border-radius:5px;">✕ EXIT</button>
-            <div id="status" style="color:var(--win); font-weight:bold; font-size:12px;">YOUR TURN</div>
-            <div id="displayRoomCode" style="color:var(--primary); font-size:12px;">0000</div>
+        <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #111;">
+            <button onclick="location.reload()" style="background:none; border:1px solid #333; color:#fff; padding:8px 15px; border-radius:10px; font-size:12px; font-weight:bold;">EXIT</button>
+            <div id="status" style="color:var(--primary); font-weight:900; font-size:14px; letter-spacing:1px;">YOUR TURN</div>
+            <div id="displayRoomCode" style="color:#555; font-weight:bold;">ID: 0000</div>
         </div>
 
-        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px;">
-            <div class="scoreboard">
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
+            <div style="display:flex; width:100%; gap:15px; margin-bottom:20px;">
                 <div id="boxX" class="score-box">
-                    <div id="p1Name" style="font-size:9px; color:#888;">X</div>
-                    <div id="p1Score" style="font-size:20px; font-weight:900; color:var(--primary);">0</div>
+                    <div id="p1Name" style="font-size:10px; color:#666; text-transform:uppercase;">Player X</div>
+                    <div id="p1Score" style="font-size:24px; font-weight:900; color:var(--primary);">0</div>
                 </div>
                 <div id="boxO" class="score-box">
-                    <div id="p2Name" style="font-size:9px; color:#888;">O</div>
-                    <div id="p2Score" style="font-size:20px; font-weight:900; color:var(--accent);">0</div>
+                    <div id="p2Name" style="font-size:10px; color:#666; text-transform:uppercase;">Player O</div>
+                    <div id="p2Score" style="font-size:24px; font-weight:900; color:var(--accent);">0</div>
                 </div>
             </div>
             <div id="board"></div>
@@ -90,9 +110,9 @@ input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(
 
         <div class="chat-section">
             <div id="messages"></div>
-            <div style="display:flex; padding:5px; background:#111;">
-                <input id="msgInput" placeholder="Chat..." style="margin:0; flex:1; padding:8px;">
-                <button onclick="sendMsg()" style="background:var(--primary); border:none; width:40px; border-radius:8px; margin-left:5px;">➤</button>
+            <div style="display:flex; padding:10px; gap:8px; background:#050505;">
+                <input id="msgInput" placeholder="Send a message..." style="margin:0; flex:1; padding:12px; border:none; border-radius:12px;">
+                <button onclick="sendMsg()" style="background:var(--primary); border:none; width:50px; border-radius:12px; color:#000; font-weight:900;">➤</button>
             </div>
         </div>
     </div>
@@ -102,6 +122,7 @@ input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
+// Firebase initialization
 const firebaseConfig = {
   apiKey: "AIzaSyARuO_pN2vdYrVKYkKHHaNys7WI8HqM6I4",
   authDomain: "friendchat-43941.firebaseapp.com",
@@ -116,10 +137,12 @@ const db = firebase.database();
 
 let myRoomId, myName, mySymbol, gameRef, chatRef, gridSize = 3, isRobot = false;
 
-const sfx = {
-    click: new Howl({ src: ['https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'], volume: 0.5 }),
-    win: new Howl({ src: ['https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3'], volume: 0.7 }),
-    error: new Howl({ src: ['https://assets.mixkit.co/active_storage/sfx/2573/2573-preview.mp3'], volume: 0.4 })
+// 6. Audio System फिक्स (Browser policy के लिए यूजर इंटरैक्शन जरूरी है)
+const sounds = {
+    move: new Howl({ src: ['https://cdn.pixabay.com/audio/2022/03/15/audio_78390a1391.mp3'], volume: 0.5 }),
+    win: new Howl({ src: ['https://cdn.pixabay.com/audio/2021/08/04/audio_0625906354.mp3'], volume: 0.8 }),
+    lose: new Howl({ src: ['https://cdn.pixabay.com/audio/2021/08/04/audio_3e02917711.mp3'], volume: 0.5 }),
+    msg: new Howl({ src: ['https://cdn.pixabay.com/audio/2022/03/10/audio_c35278d35a.mp3'], volume: 0.3 })
 };
 
 function setGrid(s) {
@@ -129,8 +152,8 @@ function setGrid(s) {
 }
 
 function startRobot() {
-    myName = document.getElementById("userName").value.trim() || "Player";
-    isRobot = true; myRoomId = "BOT_" + Math.floor(Math.random()*999);
+    myName = document.getElementById("userName").value.trim() || "Pro_Player";
+    isRobot = true; myRoomId = "AI_ARENA_" + Math.floor(Math.random()*999);
     setupGame("X");
 }
 
@@ -143,7 +166,7 @@ function createRoom() {
 function joinRoom() {
     myName = document.getElementById("userName").value.trim() || "Guest";
     myRoomId = document.getElementById("joinCode").value.trim();
-    if(!myRoomId) return alert("Code?");
+    if(!myRoomId) return;
     isRobot = false; setupGame("O");
 }
 
@@ -156,7 +179,7 @@ function setupGame(sym) {
         gameRef.set({ 
             board: Array(gridSize*gridSize).fill(""), 
             turn: "X", size: gridSize, scores: {X:0, O:0}, 
-            players: {X: myName, O: isRobot ? "ROBOT" : "WAITING..."} 
+            players: {X: myName, O: isRobot ? "ROBOT_AI" : "WAITING..."} 
         });
     } else {
         gameRef.child("players/O").set(myName);
@@ -164,20 +187,20 @@ function setupGame(sym) {
 
     document.getElementById("loginScreen").classList.add("hidden");
     document.getElementById("gameScreen").classList.remove("hidden");
-    document.getElementById("displayRoomCode").innerText = isRobot ? "SOLO" : myRoomId;
+    document.getElementById("displayRoomCode").innerText = "ARENA: " + myRoomId;
     createBoard(); listenGame(); listenChat();
 }
 
 function createBoard() {
     const board = document.getElementById("board");
     board.innerHTML = "";
-    let cellSize = gridSize === 3 ? 90 : 60;
+    let cellSize = gridSize === 3 ? 100 : 70;
     board.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
     for(let i=0; i < gridSize * gridSize; i++) {
         const cell = document.createElement("div");
         cell.className = "cell"; cell.id = "c" + i;
         cell.style.width = cellSize + "px"; cell.style.height = cellSize + "px";
-        cell.style.fontSize = (cellSize/2) + "px";
+        cell.style.fontSize = (cellSize/1.8) + "px";
         cell.onclick = () => move(i);
         board.appendChild(cell);
     }
@@ -186,31 +209,50 @@ function createBoard() {
 function move(i) {
     gameRef.once("value", snap => {
         const g = snap.val();
-        if(!g || g.turn !== mySymbol || g.board[i] !== "" || checkWinner(g.board, g.size)) {
-            if(g.turn === mySymbol) {
-                sfx.error.play();
-                document.getElementById("c"+i).classList.add("shake");
-                setTimeout(()=>document.getElementById("c"+i).classList.remove("shake"), 400);
-            }
-            return;
-        }
-        executeMove(g, i, mySymbol);
+        if(!g || g.turn !== mySymbol || g.board[i] !== "" || checkWinner(g.board, g.size)) return;
+        
+        // Vibration for mobile
+        if(navigator.vibrate) navigator.vibrate(50);
+        
+        sounds.move.play();
+        g.board[i] = mySymbol;
+        updateGameState(g);
     });
 }
 
-function executeMove(g, i, symbol) {
-    sfx.click.play();
-    g.board[i] = symbol;
-    let nextTurn = symbol === "X" ? "O" : "X";
+function updateGameState(g) {
+    let nextTurn = g.turn === "X" ? "O" : "X";
     let updateData = { board: g.board, turn: nextTurn };
     
     const win = checkWinner(g.board, g.size);
     if(win && win !== "draw") {
         g.scores[win.w]++;
         updateData.scores = g.scores;
-        sfx.win.play();
+        sounds.win.play();
     }
     gameRef.update(updateData);
+}
+
+// 7. Unbeatable Robot AI (Minimax Algorithm)
+function getBestMove(board, size) {
+    let emptyCells = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
+    
+    // 1. Check if AI can win in next move
+    for(let i of emptyCells) {
+        let b = [...board]; b[i] = "O";
+        if(checkWinner(b, size)) return i;
+    }
+    // 2. Block Player if they are winning
+    for(let i of emptyCells) {
+        let b = [...board]; b[i] = "X";
+        if(checkWinner(b, size)) return i;
+    }
+    // 3. Center is priority
+    let center = Math.floor((size*size)/2);
+    if(board[center] === "") return center;
+    
+    // 4. Random but smart
+    return emptyCells[Math.floor(Math.random() * emptyCells.length)];
 }
 
 function listenGame() {
@@ -227,7 +269,11 @@ function listenGame() {
 
         g.board.forEach((v, i) => { 
             const c = document.getElementById("c"+i);
-            c.innerText = v; c.classList.remove("winner-cell");
+            if(c.innerText !== v) {
+                c.innerText = v;
+                c.style.transform = "scale(1.1)";
+                setTimeout(() => c.style.transform = "scale(1)", 200);
+            }
             c.style.color = v === 'X' ? 'var(--primary)' : 'var(--accent)'; 
         });
 
@@ -238,25 +284,25 @@ function listenGame() {
                 document.getElementById("winnerName").innerText = (winData.w === "X" ? g.players.X : g.players.O).toUpperCase();
                 setTimeout(() => {
                     document.getElementById("winnerOverlay").style.display = "flex";
-                    if(winData.w === mySymbol) confetti();
-                }, 800);
+                    if(winData.w === mySymbol) confetti({particleCount: 200, spread: 70});
+                }, 1000);
             } else {
-                document.getElementById("winnerName").innerText = "DRAW!";
+                document.getElementById("winnerName").innerText = "DRAW";
                 document.getElementById("winnerOverlay").style.display = "flex";
             }
         } else {
             document.getElementById("winnerOverlay").style.display = "none";
-            document.getElementById("status").innerText = g.turn === mySymbol ? "YOUR TURN" : (isRobot ? "BOT THINKING..." : "WAITING...");
+            document.getElementById("status").innerText = g.turn === mySymbol ? "YOUR TURN" : "OPPONENT THINKING...";
             
-            // Robot Turn Logic
             if(isRobot && g.turn === "O") {
                 setTimeout(() => {
-                    let emptyCells = g.board.map((v,i) => v === "" ? i : null).filter(v => v !== null);
-                    if(emptyCells.length > 0) {
-                        let moveIdx = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-                        executeMove(g, moveIdx, "O");
+                    let moveIdx = getBestMove(g.board, g.size);
+                    if(moveIdx !== undefined) {
+                        sounds.move.play();
+                        g.board[moveIdx] = "O";
+                        updateGameState(g);
                     }
-                }, 800);
+                }, 1000);
             }
         }
     });
@@ -267,30 +313,37 @@ function checkWinner(b, size) {
     if(size === 3) {
         lines.push([0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]);
     } else {
-        // Simple 5x5 win (3 in a row)
+        // 5x5 simple logic (4 in a row)
         for(let i=0; i<5; i++) {
-            for(let j=0; j<3; j++) {
-                lines.push([i*5+j, i*5+j+1, i*5+j+2]); // Row
-                lines.push([j*5+i, (j+1)*5+i, (j+2)*5+i]); // Col
+            for(let j=0; j<2; j++) {
+                lines.push([i*5+j, i*5+j+1, i*5+j+2, i*5+j+3]);
+                lines.push([j*5+i, (j+1)*5+i, (j+2)*5+i, (j+3)*5+i]);
             }
         }
     }
-    for(let l of lines) { if(b[l[0]] && b[l[0]]===b[l[1]] && b[l[1]]===b[l[2]]) return {w: b[l[0]], line: l}; }
+    for(let l of lines) {
+        if(b[l[0]] && l.every(idx => b[idx] === b[l[0]])) return {w: b[l[0]], line: l};
+    }
     return b.includes("") ? null : "draw";
 }
 
-function restartMatch() { gameRef.update({ board: Array(gridSize*gridSize).fill(""), turn: "X" }); }
+function restartMatch() { 
+    gameRef.update({ board: Array(gridSize*gridSize).fill(""), turn: "X" }); 
+}
+
 function sendMsg() {
     const i = document.getElementById("msgInput");
     if(!i.value) return;
     chatRef.push({ n: myName, m: i.value }); i.value = "";
 }
+
 function listenChat() {
     chatRef.on("child_added", snap => {
         const d = snap.val();
+        sounds.msg.play();
         const m = document.createElement("div");
         m.className = "msg " + (d.n === myName ? "me" : "other");
-        m.innerHTML = `<b style="font-size:7px; display:block; opacity:0.5;">${d.n}</b>${d.m}`;
+        m.innerHTML = `<span style="font-size:8px; opacity:0.5; display:block;">${d.n}</span>${d.m}`;
         document.getElementById("messages").appendChild(m);
         document.getElementById("messages").scrollTop = 1000;
     });
